@@ -1,0 +1,17 @@
+PROJECT_NAME = "myapp"
+
+[default]
+log_level = "DEBUG"
+log_path = "@format /var/log/{this.PROJECT_NAME}/app.log"
+host = "0.0.0.0"
+port = 9099
+
+[db]
+user = "root"
+password = "mysql"
+url = "@format mysql+pymysql://{this.DB.USER}:{this.DB.PASSWORD}@127.0.0.1:3306/myapp?charset=utf8"
+
+[cache]
+backend = "redis"
+password = "7a38d7c46ca4798c7767"
+url = "@format redis://:{this.CACHE.PASSWORD}@127.0.0.1:6379/0"
