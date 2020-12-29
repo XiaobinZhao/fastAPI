@@ -1,36 +1,20 @@
 import uvicorn
 from loguru import logger
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from myapp.api import desktop
+from myapp.openapi import custom_openapi
 from myapp.conf.config import settings
 from myapp.conf.loginit import config as log_configs
 
 logger.configure(**log_configs)  # 配置loguru logger
 
 
-tags_metadata = [
-    {
-        "name": "desktop",
-        "description": "Manage desktops. So _fancy_ they have their own docs.",
-        "externalDocs": {
-            "description": "Items external docs",
-            "url": "https://fastapi.tiangolo.com/",
-        },
-    },
-]
+app = FastAPI(docs_url=None, redoc_url=None)  # docs url 重新定义
+custom_openapi(app)  # 设置自定义openAPI
 
-app = FastAPI(title="My App",
-              description="my app description",
-              version="1.0.0",
-              openapi_tags=tags_metadata,
-              openapi_url="/api/openapi.json")
-
-# app.include_router(desktop.router,
-#                    prefix="/desktops",
-#                    tags=["desktop"],
-#                    dependencies=None,
-#                    responses=None,
-#                    default_response_class=None)
+app.mount("/static", StaticFiles(directory="myapp/static"), name="static")
+app.include_router(desktop.router)
 
 
 if __name__ == '__main__':

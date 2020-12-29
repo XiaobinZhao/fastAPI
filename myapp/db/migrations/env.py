@@ -22,6 +22,7 @@ root = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                     os.path.pardir)  # 定位到项目根目录
 sys.path.append(root)
 from myapp.models import Model_Base
+from myapp.conf.config import settings
 target_metadata = Model_Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -42,7 +43,8 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    # url = config.get_main_option("sqlalchemy.url")
+    url = settings.db.url
     context.configure(
         url=url, target_metadata=target_metadata, literal_binds=True)
 
@@ -57,11 +59,14 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    # connectable = engine_from_config(
+    #     config.get_section(config.config_ini_section),
+    #     prefix='sqlalchemy.',
+    #     poolclass=pool.NullPool)
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        {"sqlalchemy.url": settings.db.url},  # 使用dynaconf文件的配置替换alembic.ini的配置
         prefix='sqlalchemy.',
         poolclass=pool.NullPool)
-
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
