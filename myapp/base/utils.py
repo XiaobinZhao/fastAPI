@@ -1,3 +1,17 @@
+def singleton(cls):
+    import threading
+
+    _instance = {}
+    _instance_lock = threading.Lock()  # 作用是保证多线程下依然保证唯一性
+
+    def _singleton(*args, **kargs):
+        with _instance_lock:
+            if cls not in _instance:
+                _instance[cls] = cls(*args, **kargs)
+            return _instance[cls]
+
+    return _singleton
+
 
 def get_base_classes_recursive(specified_class, base_class_result=[], stop_name="object"):
     """

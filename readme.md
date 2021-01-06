@@ -193,3 +193,216 @@ Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成�
 - 数据校验
 - 数据输入/输出类型转换
 
+# pydantic 管理参数校验和OpenAPI在线文档
+
+## pydantic的schema model和db 的model共享描述字段
+
+1. SQLAlchemy ORM 添加数据库描述字段
+
+   有2个字段可以作为描述字段：
+
+   1. doc：只是在python侧做文档描述，不进入DB
+   2. comment: 创建表时，会把该字段写入SQL
+
+   可以知道我们使用comment会更合适
+
+2. pydantic的schema model 每个字段都有description字段，最后会生成在线文档的字段描述字段。那么是否可以只写一次该描述文字，就可以在DB和schema都可以看到呢？研究发现，还是自己实现吧。
+
+   通过查看FastAPI的源码，可以知道在FastAPI实例初始化时就会进行schema model的解析并且生成openapi.json文件。所以普通的继承和重写是不能实现的，python有一神器：metaclass。
+
+   ```
+   MetaClass元类，本质也是一个类，但和普通类的用法不同，它可以对类内部的定义（包括类属性和类方法）进行动态的修改。可以这么说，使用元类的主要目的就是为了实现在创建类时，能够动态地改变类中定义的属性或者方法。
+   ```
+
+   自定义SchemaMetaclass,实现对schema model 类创建时，把db model的comment字段的value设置到 schema model的description字段。
+
+   1. schema model必须添加参数，可以知道从那个 DB model查找comment。这里使用 Config.orm_model属性
+   2. 有可能schema model存在继承关系，所以查找需要递归查找Config.orm_model属性
+   3. scheme model的所有字段的定义需要设置Filed()定义
+   4. 之后可以继续优化，比如自动设置默认值和字符串最长（max_length）
+
+## OpenAPI在线文档管理
+定制openAPI 文档。
+
+- 抽出OpenAPI文档全局设置参数
+
+- 使用本地swagger-ui文件
+
+- 提供加载静态文件路由
+
+  ```python
+  # main.py
+  from fastapi import FastAPI
+  from fastapi.staticfiles import StaticFiles
+  from myapp.openapi import custom_openapi
+  
+  
+  app = FastAPI(docs_url=None, redoc_url=None)  # docs url 重新定义
+  custom_openapi(app)  # 设置自定义openAPI
+  
+  app.mount("/static", StaticFiles(directory="myapp/static"), name="static")
+  ```
+
+  ```python
+  # openapi.py
+  
+  from fastapi.openapi.utils import get_openapi
+  from fastapi.openapi.docs import (
+      get_redoc_html,
+      get_swagger_ui_html,
+      get_swagger_ui_oauth2_redirect_html,
+  )
+  
+  
+  OpenAPISchema = {
+      "title": "My app",
+      "version": "1.0.0",
+      "description": "python web framework base on FastAPI.",
+      "openapi_tags": [{
+          "name": "desktop",
+          "description": "Manage desktops."
+      }]
+  }
+  
+  
+  def custom_openapi(app):
+      """
+      重新定义swagger的一些参数，包括文档全局设置（title/version等）以及使用本地静态资源。
+      """
+      def my_openapi():
+          if app.openapi_schema:
+              return app.openapi_schema
+          openapi_schema = get_openapi(
+              title=OpenAPISchema["title"],
+              version=OpenAPISchema["version"],
+              description=OpenAPISchema["description"],
+              routes=app.routes,
+              tags=OpenAPISchema["openapi_tags"]
+          )
+          app.openapi_schema = openapi_schema
+          return app.openapi_schema
+  
+      app.openapi = my_openapi
+  
+      @app.get("/docs", include_in_schema=False)
+      async def custom_swagger_ui_html():
+          return get_swagger_ui_html(
+              openapi_url=app.openapi_url,
+              title=OpenAPISchema["title"] + " - Swagger UI",
+              oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+              swagger_js_url="/static/swagger-ui-bundle.js",
+              swagger_css_url="/static/swagger-ui.css",
+              swagger_favicon_url="/static/favicon.ico"
+          )
+  
+      @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
+      async def swagger_ui_redirect():
+          return get_swagger_ui_oauth2_redirect_html()
+  
+      @app.get("/redoc", include_in_schema=False)
+      async def redoc_html():
+          return get_redoc_html(
+              openapi_url=app.openapi_url,
+              title=OpenAPISchema["title"] + " - ReDoc",
+              redoc_js_url="/static/redoc.standalone.js",
+              redoc_favicon_url="/static/favicon.ico"
+          )
+  ```
+
+
+# alembic 管理数据库版本
+alembic 是一个做数据库版本管理的工具。
+ 1. 配置文件位于: {PROJECT_NAME}/db/migrations/alembic.ini 会自动获取配置文件里关于db的设置
+ 2. 配置项主要为：`sqlalchemy.url = mysql+pymysql://xview:xview@localhost:3306/xview?charset=utf8`
+ 3. 生成增量版本: `alembic revision --autogenerate -m "2.0.3"' # 2.0.3 是message，标记本次升级的描述
+ 4. 升级到最新版本: `alembic upgrade head'  
+ 5. 升级到 下一个 版本: `alembic upgrade +1`
+ 6. 打印升级到最新版本的 SQL 脚本: `alembic upgrade head --sql` 
+ 7. 降级到 前一个 版本: `alembic downgrade -1`
+
+## 设置 db url
+
+修改alembic的env.py文件，设置db url为项目的配置文件中设置的url
+
+```python
+def run_migrations_online():
+    # .... 一些代码省略...
+    connectable = engine_from_config(
+        {"sqlalchemy.url": settings.db.url},  # 使用dynaconf文件的配置替换alembic.ini的配置
+        prefix='sqlalchemy.',
+        poolclass=pool.NullPool)
+    # .... 一些代码省略...
+
+```
+
+# 框架定制 
+
+## 逻辑分层
+
+架构设计的本质是：降本增效。分层可以进行一定程度的逻辑隔离，各司其职，简化开发流程，便于维护，实现降本增效。
+
+1. schema（资源）层：本层在java等体系中称之为VO（View Object），用于展示层，作用是把前端展示的数据进行封装。在这里，我称之为视图层或者资源层。这一层会把API的response的数据结构进行控制。因为python是弱类型语言，response可以随意修改其数据结构，所以定义一个数据结构进行显示控制，很有必要。
+
+   资源是RestFul风格的API强调的一个概念。这个资源应该是针对业务进行的抽象对象，与数据库设计的表可能是一一对应，也可能是1个资源对应多个表。比如一个学生资源，可能会包含学生的基本信息（姓名、性别、年龄等）和课程信息（科目、分数等）；学生信息和课程信息在数据库会是2个表，但是在资源上是一个。
+
+   资源层的schema class会设置 每个字段的属性（类型、长度、正则等）以及必填等，这些校验项会在API层对request/response数据进行校验。
+
+   资源层对应的数据结构会在API层进行填充。
+
+   本层的实现技术基于pydantic。
+
+2. API层：处理入参和出参校验。进行入/出参的参数校验，包括必填（选填）参数、参数类型（数字、字符串、枚举等）、参数限制（长度、大小氛围、正则等）等；以及url的设置，http method，http response code等。
+
+   这一层还可以有一些中间件或者说是拦截器等的组件来进行一些请求前或者请求后的操作，比如：请求前的token校验、权限校验等；请求后的异常处理和消息通知等
+
+   API层会关注response的组成结果，实例化资源层定义的资源对象。每个资源一般会定义一个或者多个第三层的数据模型（数据库表）。
+
+   本层的实现技术基于fastAPI。
+
+3. 业务层：经过API层过滤之后，进入业务层的数据一定是符合预期的，规范的；这样可以进行相应的业务处理，比如一个订单请求，在这一层可能涉及到的有订单数据生成、减库存、购物车数据变动等等。
+
+   1. 得到的数据是符合预期的，规范的
+   2. 业务层应该专注于业务处理，不必关注数据怎么入库
+   3. 业务层需要暴露一些接口给其他业务层调用
+   4. 不同的业务模块应该且最好只能通过业务层的接口进行互相import和调用
+   5. 业务层的方法应多使用SOLID设计模式
+
+   本层的技术实现没有明确定义。
+
+4. 数据/模型层：这一层定义了数据字典或者称之为数据结构，并且和数据库连接（DBAPI）连通，进行数据的入库操作。这一层应该无关业务只有数据。数据库连接应该随用随放，不要持有太久；注意SQL优化等。
+
+   本层的技术实现基于sqlalchemy。
+
+  ## db
+
+
+
+  ## exception
+
+  ## token
+
+  ## 公共类库
+
+  - lock
+  - cache
+  - tools工具包
+      - UUID
+      - md5
+      - Symmetric Encryption、Symmetric Decryption 对称加密解密
+      - format_datetime 时间格式转化
+      - 使用python执行一些系统命令
+      - 使用socket判断`ip:port `是否可用
+      - ip和数字互转
+      - 随机字符串生成
+      - 获取本地ip/mac
+
+  ## 单元测试
+
+# 打包发布
+
+
+
+  
+
+  
+
