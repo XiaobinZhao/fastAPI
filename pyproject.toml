@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fastapi"
+name = "myapp"
 version = "0.1.0"
 description = "python web framework base on FastAPI."
 authors = ["xiaobin.zhao"]
@@ -22,6 +22,7 @@ pytz = "~2020.5"
 pycryptodome = "~3.9.9"
 "oslo.concurrency" = "~4.3.1"
 redis = "~3.5.3"
+fastapi = "~0.63.0"
 
 [tool.poetry.dev-dependencies]
 

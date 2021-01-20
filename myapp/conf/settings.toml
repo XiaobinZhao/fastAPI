@@ -9,7 +9,7 @@ port = 9099
 [db]
 user = "root"
 password = "mysql"
-url = "@format mysql+pymysql://{this.DB.USER}:{this.DB.PASSWORD}@127.0.0.1:3306/myapp?charset=utf8"
+url = "@format mysql+pymysql://{this.DB.USER}:{this.DB.PASSWORD}@127.0.0.1:3306/{this.PROJECT_NAME}?charset=utf8"
 
 [redis]
 dbid = 0

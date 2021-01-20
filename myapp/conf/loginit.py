@@ -1,5 +1,5 @@
-from myapp.conf.config import settings
 import datetime
+from myapp.conf.config import settings
 
 
 class Rotator:

@@ -6,13 +6,9 @@ from sqlalchemy.orm import Session
 from myapp.base.dependency.db import get_db_session
 from myapp.models import Desktop
 from myapp.schema import desktop as desktop_schema
-
+from myapp.manager.desktop import DesktopManager
 
 router = APIRouter(prefix="/desktops", tags=["desktop"])
-
-
-def get_desktops(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Desktop).offset(skip).limit(limit).all()
 
 
 def create_desktop(db: Session, desktop: desktop_schema.DesktopBase, user_id: int):
@@ -24,16 +20,17 @@ def create_desktop(db: Session, desktop: desktop_schema.DesktopBase, user_id: in
 
 
 @router.post("/", response_model=desktop_schema.DesktopDetail)
-async def create_desktop(
-    user_id: int, desktop: desktop_schema.DesktopBase, db: Session = Depends(get_db_session)
-):
-    return create_desktop(db=db, desktop=desktop, user_id=user_id)
+def create_desktop(desktop: desktop_schema.DesktopBase):
+    manager = DesktopManager()
+    desktop = manager.create_desktop(desktop)
+    return desktop
 
 
 @router.get("/", response_model=List[desktop_schema.DesktopDetail])
-async def read_desktops(skip: int = 0, limit: int = 100, db: Session = Depends(get_db_session)):
+def list_desktops(skip: int = 0, limit: int = 100):
     """
-    查询桌面. 这里的注释内容会出现在swagger文档中
+    查询桌面.
     """
-    desktops = get_desktops(db, skip=skip, limit=limit)
+    manager = DesktopManager()
+    desktops = manager.list_desktops(skip=skip, limit=limit)
     return desktops

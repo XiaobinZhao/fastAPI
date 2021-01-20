@@ -2,10 +2,10 @@ import uvicorn
 from loguru import logger
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from myapp.api import desktop
 from myapp.openapi import custom_openapi
 from myapp.conf.config import settings
 from myapp.conf.loginit import config as log_configs
+from myapp.api import desktop
 
 logger.configure(**log_configs)  # 配置loguru logger
 
@@ -22,5 +22,4 @@ if __name__ == '__main__':
                 host=settings.default.host,
                 port=settings.default.port,
                 reload=True,
-                debug=True,
                 workers=1)
