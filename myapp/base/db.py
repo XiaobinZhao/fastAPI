@@ -133,8 +133,7 @@ class ModelDB(object):
 
     @db_session_writer
     def delete(self):
-        result = self.session.delete(self)
-        return result
+        self.session.query(self.__class__).filter_by(uuid=self.uuid).delete()
 
     @db_session_reader
     def get_by_id(self):

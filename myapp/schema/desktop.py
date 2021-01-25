@@ -1,9 +1,9 @@
 from typing import Optional
-from uuid import UUID, uuid4
+from uuid import uuid4
 from pydantic import BaseModel, Field
 from myapp.base.schema import SchemaMetaclass
+from myapp.base.schema import EnabledEnum
 from myapp.models.desktop import Desktop
-from myapp.schema.common import EnabledEnum
 
 
 class DesktopBase(BaseModel, metaclass=SchemaMetaclass):
@@ -17,11 +17,12 @@ class DesktopBase(BaseModel, metaclass=SchemaMetaclass):
 
 
 class DesktopDetail(DesktopBase):
-    uuid: UUID = Field(default_factory=uuid4, description="业务中使用的桌面uuid")
+    """
+    桌面详情对象
+    """
+    uuid: str = Field(default=uuid4().hex, description="业务中使用的桌面uuid")
     node_name: str = Field(max_length=255)
     vm_uuid: str = Field(max_length=64)
     node_uuid: str = Field(max_length=64)
     enabled: EnabledEnum = Field(EnabledEnum.enabled)
     is_attached_gpu: bool = Field(False)
-
-
