@@ -30,5 +30,18 @@ class DesktopManager(object):
 
     def delete_desktop_by_uuid(self, desktop_uuid):
         desktop = DB_Desktop_Model(uuid=desktop_uuid)
+        desktop = desktop.get_by_id()
+        if not desktop:
+            raise NotFountException(message="Desktop %s not found." % desktop_uuid)
         desktop.delete()
         return None
+
+    def patch_desktop(self, desktop_uuid, patched_desktop):
+        desktop = DB_Desktop_Model(uuid=desktop_uuid)
+        desktop = desktop.get_by_id()
+        if not desktop:
+            raise NotFountException(message="Desktop %s not found." % desktop_uuid)
+        for key, value in patched_desktop.dict().items():
+            setattr(desktop, key, value)
+        desktop.update()
+        return desktop

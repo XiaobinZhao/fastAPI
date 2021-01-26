@@ -1,18 +1,18 @@
 from enum import Enum
-from typing import Union
-from typing import Dict
-from typing import List
-from typing import Any
-from pydantic import BaseModel, Field
+from typing import Generic, TypeVar
+from pydantic import Field
+from pydantic.generics import GenericModel
 from pydantic.main import ModelMetaclass
 from myapp.base.utils import get_base_classes_recursive
 
+ResponseData = TypeVar('ResponseData')
 
-class ResponseModel(BaseModel):
+
+class MyBaseSchema(GenericModel, Generic[ResponseData]):
     """
     统一response返回值。所有对外的API都包含data/message/code三个字段
     """
-    data: Any = Field(default={}, description="response数据包含在这个字段，数据可能是list或者dict.")
+    data: ResponseData = Field(default={}, description="response数据包含在这个字段，数据可能是list或者dict.")
     message: str = Field(default="", description="如果有错误发生时，该字段用来显示错误详情。没有错误发生时，字段为空字符串")
     code: str = Field(default=9999, description="请求返回码。成功默认是9999，每个失败都有具体code值。code由几部分组成")
 

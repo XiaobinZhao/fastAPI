@@ -20,9 +20,14 @@ class DesktopDetail(DesktopBase):
     """
     桌面详情对象
     """
-    uuid: str = Field(default=uuid4().hex, description="业务中使用的桌面uuid")
+    uuid: str = Field(description="业务中使用的桌面uuid")
     node_name: str = Field(max_length=255)
     vm_uuid: str = Field(max_length=64)
     node_uuid: str = Field(max_length=64)
+    enabled: EnabledEnum = Field(EnabledEnum.enabled)
+    is_attached_gpu: bool = Field(False)
+
+
+class DesktopPatch(DesktopBase):
     enabled: EnabledEnum = Field(EnabledEnum.enabled)
     is_attached_gpu: bool = Field(False)

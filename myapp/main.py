@@ -1,5 +1,6 @@
 import uvicorn
 from loguru import logger
+from fastapi import status
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -23,7 +24,7 @@ async def http_exception_handler(request, exc):
     """
     拦截所有的exception，返回的数据格式统一为 myapp.base.schema.ResponseModel
     """
-    return MyBaseResponse(code=getattr(exc, "code", ErrorCode.FAST_API_ERROR),  # 默认0000为fastAPI系统错误code
+    return MyBaseResponse(code=getattr(exc, "code", ErrorCode.INTERNAL_ERROR),  # 默认0000为系统未知错误code
                           message=getattr(exc, "message", "") or str(exc.detail),
                           data=getattr(exc, "data", {}),
                           status_code=exc.status_code)
@@ -31,10 +32,10 @@ async def http_exception_handler(request, exc):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    return MyBaseResponse(code=getattr(exc, "code", ErrorCode.FAST_API_ERROR),  # 默认0000为fastAPI系统错误code
+    return MyBaseResponse(code=getattr(exc, "code", ErrorCode.REQUEST_VALIDATE_ERROR),
                           message=getattr(exc, "message", "") or str(exc),
                           data=getattr(exc, "data", {}),
-                          status_code=400)
+                          status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 app.mount("/static", StaticFiles(directory="myapp/static"), name="static")

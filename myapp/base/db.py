@@ -40,6 +40,8 @@ def get_db_data_immediately(model_instance, db_session_result):
     :return: model 对象实例（s）
     """
     def _from_db(obj):
+        if not isinstance(obj, Model_Base):  # 如果不是DB model实例，直接返回
+            return obj
         new_instance = model_instance.__class__()  # 重新得到一个实例
         for key in model_instance.keys():
             if key in model_instance:
@@ -149,9 +151,8 @@ class ModelDB(object):
 
     @db_session_writer
     def update(self):
-        result = self.session.query(self.__class__).\
-            filter_by(uuid=self.uuid).update(self._as_dict(except_keys=["id", "uuid", "created_at", "updated_at"]),
-                                             synchronize_session="fetch")
+        new_dict = self._as_dict(except_keys=["id", "uuid", "created_at", "updated_at"])
+        result = self.session.query(self.__class__).filter_by(uuid=self.uuid).update(new_dict)
         return result
 
     def _as_dict(self, except_keys=[]):
