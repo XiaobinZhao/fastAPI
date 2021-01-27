@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name="fastAPI",
+    name="myapp",
     version="1.0",
     packages=find_packages(),
 )

@@ -375,9 +375,19 @@ def run_migrations_online():
 
   ## db
 
-
+使用db_writer和db_reader进行装饰器封装，以达到数据库立刻执行和立刻关闭session。
 
   ## exception
+
+exception和正常的response进行封装成统一的返回格式：
+
+```json
+{
+  "data": {},
+  "message": "message.",
+  "code": "API_0002"
+}
+```
 
   ## token
 
@@ -398,9 +408,13 @@ def run_migrations_online():
 
   ## 单元测试
 
+使用fastapi的 test client进行http请求。
+
+在项目根目录，比如`/root/workspace/fastAPI/`目录下执行 `pytest`即可执行单元测试。
+
 # 打包发布
 
-
+poetry build 即可得到wheel 包
 
   
 

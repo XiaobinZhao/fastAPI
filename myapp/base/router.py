@@ -18,7 +18,7 @@ class CustomResponseRoute(APIRoute):
         async def custom_route_handler(request: Request) -> Response:
             response: Response = await original_route_handler(request)
             response_body = json.loads(response.body.decode())
-            custome_response = MyBaseSchema(data=response_body)
+            custome_response = MyBaseSchema(data=response_body or {})
             response.body = json.dumps(custome_response.dict()).encode()
             for index, value in enumerate(response.headers.raw):
                 if b'content-length' in value:
