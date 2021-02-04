@@ -41,7 +41,7 @@ class DesktopManager(object):
         desktop = desktop.get_by_id()
         if not desktop:
             raise NotFountException(message="Desktop %s not found." % desktop_uuid)
-        for key, value in patched_desktop.dict().items():
+        for key, value in patched_desktop.dict(exclude_unset=True).items():
             setattr(desktop, key, value)
         desktop.update()
         return desktop

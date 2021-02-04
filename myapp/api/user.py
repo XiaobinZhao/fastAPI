@@ -1,67 +1,60 @@
-# from typing import List
-# from sqlalchemy.orm import Session
-# from fastapi import HTTPException
-# from fastapi import APIRouter
-# from fastapi import Depends
-# from fastapi import Request
-# from myapp.models.user import User
-# from myapp.schema import user as user_schema
-# from myapp.base.db import DB_SESSION
-#
-# router = APIRouter()
-#
-#
-# # Dependency
-# def get_db():
-#     db = DB_SESSION
-#     try:
-#         yield db
-#     finally:
-#         db.close()
-#
-#
-# def db_get_user(db: Session, user_id: int):
-#     return db.query(User).filter(User.id == user_id).first()
-#
-#
-# def db_get_user_by_email(db: Session, email: str):
-#     return db.query(User).filter(User.email == email).first()
-#
-#
-# def db_get_users(db: Session, skip: int = 0, limit: int = 100):
-#     return db.query(User).offset(skip).limit(limit).all()
-#
-#
-# def db_create_user(db: Session, user: user_schema.UserCreate):
-#     fake_hashed_password = user.password + "notreallyhashed"
-#     db_user = User(email=user.email, hashed_password=fake_hashed_password)
-#     db.add(db_user)
-#     db.commit()
-#     db.refresh(db_user)
-#     return db_user
-#
-#
-# @router.post("/", response_model=user_schema.User)
-# def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
-#     """
-#     创建用户
-#     """
-#     db_user = db_get_user_by_email(db, email=user.email)
-#     if db_user:
-#         raise HTTPException(status_code=400, detail="Email already registered")
-#     users_mode = db_create_user(db=db, user=user)
-#     return users_mode
-#
-#
-# @router.get("/", response_model=List[user_schema.User])
-# def read_users(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     users = db_get_users(db, skip=skip, limit=limit)
-#     return users
-#
-#
-# @router.get("/{user_id}", response_model=user_schema.User)
-# def read_user(user_id: int, db: Session = Depends(get_db)):
-#     db_user = db_get_user(db, user_id=user_id)
-#     if db_user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return db_user
+from typing import List
+from fastapi import status
+from fastapi import Depends
+from myapp.base.schema import MyBaseSchema
+from myapp.schema.user import UserBase as UserBaseSchema
+from myapp.schema.user import UserDetail as UserDetailSchema
+from myapp.schema.user import UserCreate as UserCreateSchema
+from myapp.schema.user import UserPatched as UserPatchedSchema
+from myapp.manager.user import UserManager
+from myapp.base.router import MyRouter
+from myapp.manager.token import verify_token
+
+router = MyRouter(prefix="/users", tags=["user"], dependencies=[Depends(verify_token)],
+                  responses={status.HTTP_401_UNAUTHORIZED: {"model": MyBaseSchema}})
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED,
+             responses={status.HTTP_201_CREATED: {"model": MyBaseSchema[UserDetailSchema]},
+                        status.HTTP_409_CONFLICT: {"model": MyBaseSchema}})
+def create_user(user: UserCreateSchema):
+    manager = UserManager()
+    user = manager.create_user(user)
+    return MyBaseSchema[UserDetailSchema](data=user)
+
+
+@router.get("/", response_model=MyBaseSchema[List[UserDetailSchema]])
+def list_users(skip: int = 0, limit: int = 100):
+    """
+    查询用户列表.
+    """
+    manager = UserManager()
+    users = manager.list_users(skip=skip, limit=limit)
+    return MyBaseSchema[List[UserDetailSchema]](data=users)
+
+
+@router.get("/{user_uuid}", response_model=MyBaseSchema[UserDetailSchema])
+async def get_user_detail(user_uuid: str):
+    """
+    指定UUID查询用户详情.
+    """
+    manager = UserManager()
+    user = manager.get_user_by_uuid(user_uuid)
+    return MyBaseSchema[UserDetailSchema](data=user)
+
+
+@router.delete("/{user_uuid}", response_model=MyBaseSchema)
+def delete_user(user_uuid: str):
+    """
+    指定UUID删除用户.
+    """
+    manager = UserManager()
+    user = manager.delete_user_by_uuid(user_uuid)
+    return MyBaseSchema(data=user)
+
+
+@router.patch("/{user_uuid}", response_model=MyBaseSchema[UserDetailSchema])
+def patch_user(user_uuid: str, user: UserPatchedSchema):
+    manager = UserManager()
+    user = manager.patch_user(user_uuid, user)
+    return MyBaseSchema[UserDetailSchema](data=user)

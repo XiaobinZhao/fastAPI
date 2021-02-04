@@ -13,6 +13,9 @@ OpenAPISchema = {
     "openapi_tags": [{
         "name": "desktop",
         "description": "Manage desktops."
+    },{
+        "name": "user",
+        "description": "Manage users."
     }]
 }
 

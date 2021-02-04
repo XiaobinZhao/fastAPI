@@ -1,8 +1,9 @@
 from typing import Optional
-from uuid import uuid4
 from pydantic import BaseModel, Field
+from pydantic import root_validator
 from myapp.base.schema import SchemaMetaclass
 from myapp.base.schema import EnabledEnum
+from myapp.base.schema import optional_but_cant_empty
 from myapp.models.desktop import Desktop
 
 
@@ -20,7 +21,7 @@ class DesktopDetail(DesktopBase):
     """
     桌面详情对象
     """
-    uuid: str = Field(description="业务中使用的桌面uuid")
+    uuid: str = Field(max_length=64, description="业务中使用的桌面uuid")
     node_name: str = Field(max_length=255)
     vm_uuid: str = Field(max_length=64)
     node_uuid: str = Field(max_length=64)
@@ -29,5 +30,10 @@ class DesktopDetail(DesktopBase):
 
 
 class DesktopPatch(DesktopBase):
-    enabled: EnabledEnum = Field(EnabledEnum.enabled)
-    is_attached_gpu: bool = Field(False)
+    enabled: Optional[EnabledEnum] = Field()
+    is_attached_gpu: Optional[bool] = Field()
+    display_name: Optional[str] = Field(max_length=255)
+    is_default: Optional[bool] = Field()
+    desc: Optional[str] = Field(max_length=255)
+
+    _root_validator = root_validator(pre=True, allow_reuse=True)(optional_but_cant_empty)

@@ -125,9 +125,6 @@ class ModelDB(object):
     def __init__(self):
         self.session = None
 
-    def _get_columns(self):
-        return [prop.key for prop in self.__mapper__.iterate_properties]
-
     @db_session_writer
     def add(self):
         self.session.add(self)
@@ -142,6 +139,10 @@ class ModelDB(object):
         return self.session.query(self.__class__).filter_by(uuid=self.uuid).first()
 
     @db_session_reader
+    def get_by_conditions(self, **conditions):
+        return self.session.query(self.__class__).filter_by(**conditions).first()
+
+    @db_session_reader
     def get_all(self):
         return self.session.query(self.__class__).all()
 
@@ -151,16 +152,23 @@ class ModelDB(object):
 
     @db_session_writer
     def update(self):
-        new_dict = self._as_dict(except_keys=["id", "uuid", "created_at", "updated_at"])
+        new_dict = self.as_dict(except_keys=["id", "uuid", "created_at", "updated_at"])
         result = self.session.query(self.__class__).filter_by(uuid=self.uuid).update(new_dict)
         return result
 
-    def _as_dict(self, except_keys=[]):
+    def as_dict(self, except_keys=[]):
         """Make the model object behave like a dict.
            Includes attributes from joins.
-           :param list <except_keys>: 不期望返回的字段
+           :param except_keys: 不期望返回的字段
         """
-        local = dict((key, value) for key, value in self if key not in except_keys)  # 需要实现__iter__
+        local = {}  # 需要实现__iter__
+        for key, value in self:
+            if key in except_keys:
+                continue
+            elif isinstance(value, datetime):
+                value = int(value.timestamp())  # 转为时间戳
+            local[key] = value
+
         # joined = dict([(k, v) for k, v in self.__dict__.items()
         #               if not k[0] == '_'])
         # local.update(joined)
@@ -168,11 +176,11 @@ class ModelDB(object):
 
     def iteritems(self):
         """Make the model object behave like a dict."""
-        return self._as_dict().items()
+        return self.as_dict().items()
 
     def items(self):
         """Make the model object behave like a dict."""
-        return self._as_dict().items()
+        return self.as_dict().items()
 
     def keys(self):
         """Make the model object behave like a dict."""

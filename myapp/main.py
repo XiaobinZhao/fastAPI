@@ -11,6 +11,8 @@ from myapp.conf.loginit import config as log_configs
 from myapp.base.response import MyBaseResponse
 from myapp.base.code import ErrorCode
 from myapp.api import desktop
+from myapp.api import user
+from myapp.api import token
 
 
 logger.configure(**log_configs)  # 配置loguru logger
@@ -24,7 +26,10 @@ async def http_exception_handler(request, exc):
     """
     拦截所有的exception，返回的数据格式统一为 myapp.base.schema.ResponseModel
     """
-    return MyBaseResponse(code=getattr(exc, "code", ErrorCode.INTERNAL_ERROR),  # 默认0000为系统未知错误code
+    code = ErrorCode.INTERNAL_ERROR  # 默认0000为系统未知错误code
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        code = ErrorCode.UNAUTHORIZED_ERROR
+    return MyBaseResponse(code=getattr(exc, "code", code),
                           message=getattr(exc, "message", "") or str(exc.detail),
                           data=getattr(exc, "data", {}),
                           status_code=exc.status_code)
@@ -39,7 +44,9 @@ async def validation_exception_handler(request, exc):
 
 
 app.mount("/static", StaticFiles(directory="myapp/static"), name="static")
+app.include_router(token.router)
 app.include_router(desktop.router)
+app.include_router(user.router)
 
 
 if __name__ == '__main__':

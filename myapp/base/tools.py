@@ -2,6 +2,10 @@ import base64
 import time
 from datetime import datetime
 from loguru import logger
+from passlib.context import CryptContext
+
+
+crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def decrypt(data="admin"):
@@ -89,6 +93,14 @@ def timestamp_to_str(timestamp, datetime_format=None, timezone=None):
         return datetime.fromtimestamp(timestamp, tz).strftime(datetime_format)
     else:
         return time.strftime(datetime_format, time.gmtime(timestamp))
+
+
+def datetime_to_timestamp(src_datetime, datetime_format="%Y-%m-%d %H:%M:%S"):
+    if not isinstance(src_datetime, datetime):
+        return src_datetime
+    dst_datetime = datetime.strptime(src_datetime, datetime_format)
+    timestamp = int(dst_datetime.timestamp())
+    return timestamp
 
 
 def bytes_to_gb(byte):

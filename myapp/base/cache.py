@@ -116,4 +116,4 @@ class RedisCache(Cache):
         return self._redis_client.delete(key)
 
 
-redisCache = RedisCache()
+MyCache = RedisCache()
