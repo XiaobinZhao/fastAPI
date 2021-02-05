@@ -11,7 +11,6 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: str = Field(max_length=64, description="jwt所面向的用户")
-    exp: datetime = Field(description="token的过期时间")
-
+    login_name: str = Field(max_length=64, description="jwt所面向用户的用户登录名")
+    user_uuid: str = Field(max_length=64, description="jwt所面向用户的用户uuid")
 

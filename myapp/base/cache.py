@@ -112,6 +112,10 @@ class RedisCache(Cache):
         return self._redis_client.get(key)
 
     @format_result
+    def expire(self, key, time):
+        return self._redis_client.expire(key, time)
+
+    @format_result
     def remove(self, key):
         return self._redis_client.delete(key)
 

@@ -17,6 +17,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = user_manager.get_user_by_login_name(form_data.username)
     token_manager = TokenManager()
     token_manager.verify_password(form_data.password, user.password)
-    encode_token, expire_at = token_manager.create_token(user)
+    encode_token, expire_at, created_at = token_manager.create_token(user)
 
-    return Token(access_token=encode_token, user_uuid=user.uuid, expired_at=expire_at)
+    return Token(access_token=encode_token, user_uuid=user.uuid, expired_at=expire_at, created_at=created_at)

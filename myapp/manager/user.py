@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 from loguru import logger
 from myapp.models.user import User as DB_User_Model
@@ -46,7 +47,7 @@ class UserManager(object):
         if not user:
             raise NotFountException(message="User %s not found." % user_uuid)
         user.delete()
-        result = MyCache.remove(user.login_name)
+        result = MyCache.remove(user_uuid)
         logger.info("redis delete result: %s" % result)
         return None
 
@@ -58,6 +59,6 @@ class UserManager(object):
         for key, value in patched_user.dict(exclude_unset=True).items():
             setattr(user, key, value)
         user.update()
-        result = MyCache.set(user.login_name, user.as_dict())
+        result = MyCache.set(user_uuid, json.dumps(user.as_dict()))
         logger.info("redis update result: %s" % result)
         return user

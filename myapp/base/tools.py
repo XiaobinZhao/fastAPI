@@ -1,10 +1,11 @@
+import os
 import base64
 import time
 from datetime import datetime
 from loguru import logger
 from passlib.context import CryptContext
 
-
+root_model_dir_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -27,7 +28,7 @@ def decrypt(data="admin"):
     if len(after_b64_decode) == 127:
         hex_fixed = '00' + after_b64_decode.hex()
         after_b64_decode = base64.b16decode(hex_fixed.upper())
-    private_key_file = "/root/workspace/fastApi/myapp/conf/rsa/private_key.pem"
+    private_key_file = root_model_dir_path + "/conf/rsa/private_key.pem"
     with open(private_key_file, 'r') as f:
         key = f.read()
         rsa_key = RSA.import_key(key)
@@ -43,7 +44,7 @@ def encrypt(data):
     from Crypto.PublicKey import RSA
     from Crypto.Cipher import PKCS1_OAEP
 
-    public_key_location = "/root/workspace/fastApi/myapp/conf/rsa/public_key.pem"
+    public_key_location = root_model_dir_path + "/conf/rsa/public_key.pem"
     with open(public_key_location, "r") as f:
         key = f.read()
         rsa_key = RSA.import_key(key)

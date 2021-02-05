@@ -391,6 +391,26 @@ exception和正常的response进行封装成统一的返回格式：
 
   ## token
 
+这里不使用OAuth2的token方案。因为OAth2的token方案相对复杂，且考虑到与第三方对接。尤其token refresh的过程：
+1. login得到access_token 和 refresh_token,refresh_token比access_token的有效期更长
+2. 客户端请求使用access_token，如果过期，客户端使用refresh_token再次请求得到新的access_token。
+   当然这里也可以返回新的refresh_token，新的refresh_token可以有新的过期时间
+3. 如果access_token过期，并且refresh_token也过期，那么需要重新登录。
+
+以上方案略显复杂。重新设计如下：
+1. login得到access_token,这个token不使用jwt格式，使用AES非对称加密算法，公钥加密得到token，加密的内容是user_name和uuid
+2. 客户端使用access_token请求，成功之后，会更新过期时间,token不变，新的过期时间为当前时间+有效时长（默认5分钟）
+3. 只要客户端一直请求（请求之间间隔最长不超过5分钟），那么token就一直有效
+
+此方案优点：
+
+1. token请求之后，在不间断操作下会一直有效，不用客户端不断refresh
+2. 逻辑简单
+3. token包含了一些信息，可以进行解密读取
+
+缺点：
+1. 需要保存会话信息，即需依赖redis这样的server端存储token和其过期时间点
+
   ## 公共类库
 
   - lock
@@ -415,6 +435,22 @@ exception和正常的response进行封装成统一的返回格式：
 # 打包发布
 
 poetry build 即可得到wheel 包
+
+
+
+# 扩展
+
+基础框架搭建好之后，自然要啦考虑到怎么做扩展。
+
+## 数据模型和数据查询
+
+## schema 模型
+
+## api 接口
+
+## manager 业务
+
+
 
   
 
