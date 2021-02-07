@@ -454,19 +454,173 @@ poetry build 即可得到wheel 包
 
 
 
-# 扩展
+# 扩展API
 
-基础框架搭建好之后，自然要啦考虑到怎么做扩展。
+基础框架搭建好之后，自然要考虑到怎么做扩展。
+
+我们现在的目录结构如下：
+
+```
+.
+├── docs
+├── myapp
+│   ├── api
+│   │   ├── desktop.py
+│   │   ├── __init__.py
+│   │   ├── token.py
+│   │   └── user.py
+│   ├── base
+│   │   ├── cache.py
+│   │   ├── code.py
+│   │   ├── constant.py
+│   │   ├── db.py
+│   │   ├── exception.py
+│   │   ├── __init__.py
+│   │   ├── lock.py
+│   │   ├── response.py
+│   │   ├── router.py
+│   │   ├── schema.py
+│   │   ├── tools.py
+│   │   └── utils.py
+│   ├── conf
+│   │   ├── config.py
+│   │   ├── __init__.py
+│   │   ├── loginit.py
+│   │   ├── rsa
+│   │   │   ├── private_key.pem
+│   │   │   └── public_key.pem
+│   │   └── settings.toml
+│   ├── db
+│   │   ├── __init__.py
+│   │   └── migrations
+│   │       ├── alembic.ini
+│   │       ├── env.py
+│   │       ├── README
+│   │       ├── script.py.mako
+│   │       └── versions
+│   │           └── bc5f7d589ae8_init.py
+│   ├── error_code
+│   │   ├── desktop.py
+│   │   └── user.py
+│   ├── exception
+│   │   ├── desktop.py
+│   │   ├── __init__.py
+│   │   └── user.py
+│   ├── i18n
+│   │   ├── en.py
+│   │   └── zh.py
+│   ├── __init__.py
+│   ├── main.py
+│   ├── manager
+│   │   ├── desktop.py
+│   │   ├── __init__.py
+│   │   ├── token.py
+│   │   └── user.py
+│   ├── models
+│   │   ├── desktop.py
+│   │   ├── __init__.py
+│   │   └── user.py
+│   ├── openapi.py
+│   ├── schema
+│   │   ├── common.py
+│   │   ├── desktop.py
+│   │   ├── __init__.py
+│   │   ├── token.py
+│   │   └── user.py
+│   ├── static
+│   │   ├── favicon.ico
+│   │   ├── redoc.standalone.js
+│   │   ├── swagger-ui-bundle.js
+│   │   └── swagger-ui.css
+│   └── test
+│       ├── __init__.py
+│       ├── test_desktop.py
+│       └── test_user.py
+├── poetry.lock
+├── pyproject.toml
+├── README.md
+└── setup.py
+```
+
+
 
 ## 数据模型和数据查询
 
+第一步一般思考数据模型的建立，对应需要什么样的数据库表结构。在这一步，需要在myapp/models目录下建立相应的模型，并且可以使用alembic生成对应的数据库版本文件。数据模型注意一下几点：
+
+1. 字段需要索引的需要加上索引
+2. 注释描述字段使用comment，这样数据库也可以看到描述信息
+3. 继承TimestampMixin直接可以为数据库添加created_at和updated_at字段
+4. 继承ModelDB可以有增删改查等相应的db操作，还有as_dict方法可以转model对象为字典
+5. 字段尽可能不为 null, 可以提供默认值
+
 ## schema 模型
 
-## api 接口
+数据库模型确定之后，开始考虑API设计。API设计包括：API url/api request 设计/response 结构设计。
+
+1. API url 请遵循restful 风格规范，比如复数，使用method代替一些出现在url的词语等
+2. api request  包含request query字段、request params字段和request body,需要遵循fastAPI规范
+   1. request query和request params在API接口上进行装饰器声明
+   2. request body 需要声明schema模型
+3. response 模型需要声明schema模型
+
+schema模型设计需要注意：
+
+1. schema模型使用的是pydantic进行的数据校验，完整文档请参考pydantic官网
+
+2. 本框架对pydantic进行一定程度的修改
+
+   1. 增加了SchemaMetaclass元类。
+
+      1. schema模型定义时，metaclass=SchemaMetaclass
+      2. 并且配置config，指定orm_mode = True和orm_model = Desktop
+
+      如此就可以实现：
+
+      1. schema定义的字段如果跟数据库model定义的字段同名，那么本框架在生成swagger 文档时，会自动合并schema字段的description字段和数据模型的comment字段。目的是可以重复使用字段的描述
+      2. schema模型的定义一般会有好几个比如：xxBase/xxUpdate/xxCreate 并且会存在继承关系，那么只要父类的元类为SchemaMetaclass，其子类都会合并描述字段
+      3. 为了方便处理，schema的每个字段必须是：Field定义，即使什么额外的属性都没有，比如：is_default: Optional[bool] = Field()
+
+3. schema模型一般对于业务，所以schema与数据模型往往不是一一对应
+
+## api 接口和openAPI
+
+有了数据模型作为后端存储，schema模型作为输入输出的规范，API自然而然就已经确定了，只需要在myapp/api下新增对应的API即可。
+
+1. router配置路由和是否需要token校验
+2. 本系统统一了正常response和异常response的结构，统一为 {“data”: {}, "code":"", "message": ""}, 为了能够得到openAPI的自动文档，这里使用了pydantic的genericModel；所以所有的API的response model都是MyBaseSchema的实例
+3. 在main.py拦截异常：RequestValidationError 和 HTTPException，重新返回为MyBaseSchema格式
+4. 新加的router要在main.py进行注册：app.include_router(xx.router)
+5. openAPI也要进行相应更新：openapi.py，增加openapi_tags内容
 
 ## manager 业务
 
+接下来就是最主要的业务部分。
 
+业务部分接受经过校验的入参，需要返回能够被自动转为schema的输出。
+
+manager 之间的引用最好使用manager对外暴露的方法。
+
+## 异常和国际化
+
+异常主要是manager层会比较多。每个异常应该在 myapp/exception目录下建立对应的py文件
+
+1. 每个exception继承myapp.base.exception.MyBaseException
+2. 每个exception要设置code、message、status_code。
+   1. code来源于 error code的定义，具体可以参考error_code章节
+   2. 每个异常API返回的response中，code码对应i18n文件中的设置
+   3. 客户端需要获取到I18n文件，从中找到code对应的翻译，显示在页面上
+   4. message一般是英文描述，作为辅助定位，一般不展示在页面上
+
+## test
+
+每加一个API都应在test添加具体的测试代码。每次API的修改都应该迅速跑一下test，不断的迭代式开发。
+
+
+
+
+
+至此，一个新的API就扩展完成了。
 
   
 
