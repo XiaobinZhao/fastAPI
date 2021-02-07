@@ -3,7 +3,7 @@ from uuid import uuid4
 from loguru import logger
 from myapp.models.user import User as DB_User_Model
 from myapp.schema.user import UserCreate as UserCreateViewModel
-from myapp.base.exception import NotFountException
+from myapp.exception.user import UserNotFountException
 from myapp.base.tools import crypt_context
 from myapp.exception.user import UserLoginNameExistException
 from myapp.base.cache import MyCache
@@ -31,21 +31,21 @@ class UserManager(object):
         user = DB_User_Model(uuid=user_uuid)
         user = user.get_by_id()
         if not user:
-            raise NotFountException(message="User %s not found." % user_uuid)
+            raise UserNotFountException(message="User %s not found." % user_uuid)
         return user
 
     def get_user_by_login_name(self, login_name):
         user = DB_User_Model()
         user = user.get_by_conditions(login_name=login_name)
         if not user:
-            raise NotFountException(message="User %s not found." % login_name)
+            raise UserNotFountException(message="User %s not found." % login_name)
         return user
 
     def delete_user_by_uuid(self, user_uuid):
         user = DB_User_Model(uuid=user_uuid)
         user = user.get_by_id()
         if not user:
-            raise NotFountException(message="User %s not found." % user_uuid)
+            raise UserNotFountException(message="User %s not found." % user_uuid)
         user.delete()
         result = MyCache.remove(user_uuid)
         logger.info("redis delete result: %s" % result)
@@ -55,7 +55,7 @@ class UserManager(object):
         user = DB_User_Model(uuid=user_uuid)
         user = user.get_by_id()
         if not user:
-            raise NotFountException(message="User %s not found." % user_uuid)
+            raise UserNotFountException(message="User %s not found." % user_uuid)
         for key, value in patched_user.dict(exclude_unset=True).items():
             setattr(user, key, value)
         user.update()

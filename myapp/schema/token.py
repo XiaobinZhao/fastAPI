@@ -11,6 +11,7 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    login_name: str = Field(max_length=64, description="jwt所面向用户的用户登录名")
-    user_uuid: str = Field(max_length=64, description="jwt所面向用户的用户uuid")
+    uuid: str = Field(max_length=64, description="token uuid")
+    login_name: str = Field(max_length=64, description="用户登录名")
+    user_uuid: str = Field(max_length=64, description="用户uuid")
 

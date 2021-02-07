@@ -7,7 +7,8 @@ class Code:
 
 
 class ErrorCode(Code, ErrorCodeBase):
-    pass
+    def __init__(self, status):
+        super(ErrorCode, self).__init__()
 
 
 class SuccessCode(Code, SuccessCodeBase):

@@ -408,8 +408,14 @@ code有4部分组成，中间以_分割，比如：API_200_000_9999
 3. 如果access_token过期，并且refresh_token也过期，那么需要重新登录。
 
 以上方案略显复杂。重新设计如下：
-1. login得到access_token,这个token不使用jwt格式，使用AES非对称加密算法，公钥加密得到token，加密的内容是user_name和uuid
+1. login得到access_token。
+   token的生成方式有多种，比如jwt;非对称加密字符串；但是 jwt加密字符串过长且jwt本身的方案特性本系统没有采用；
+   非对称AES加密又消耗时间过长，经验证加密一个字符串需要500ms左右。这行的话login API的耗时要达到1s,太长。所以简化为：
+   生成带有uuid的字符串，然后使用base64加密得到token。这样token可以保持唯一性（因为uuid），也可以在客户端反解出来得到token
+   的内容；
+
 2. 客户端使用access_token请求，成功之后，会更新过期时间,token不变，新的过期时间为当前时间+有效时长（默认5分钟）
+
 3. 只要客户端一直请求（请求之间间隔最长不超过5分钟），那么token就一直有效
 
 此方案优点：
