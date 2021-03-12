@@ -16,4 +16,4 @@ dbid = 0
 host = "127.0.0.1"
 port = 6379
 password = "7a38d7c46ca4798c7767"
-url = "@format redis://:{this.CACHE.PASSWORD}@{this.CACHE.HOST}:{this.CACHE.PORT}/{this.CACHE.DBID}"
+url = "@format redis://:{this.REDIS.PASSWORD}@{this.REDIS.HOST}:{this.REDIS.PORT}/{this.REDIS.DBID}"
