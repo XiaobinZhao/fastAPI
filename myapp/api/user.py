@@ -17,19 +17,19 @@ router = MyRouter(prefix="/users", tags=["user"], dependencies=[Depends(verify_t
 @router.post("/", status_code=status.HTTP_201_CREATED,
              responses={status.HTTP_201_CREATED: {"model": MyBaseSchema[UserDetailSchema]},
                         status.HTTP_409_CONFLICT: {"model": MyBaseSchema}})
-def create_user(user: UserCreateSchema):
+async def create_user(user: UserCreateSchema):
     manager = UserManager()
-    user = manager.create_user(user)
+    user = await manager.create_user(user)
     return MyBaseSchema[UserDetailSchema](data=user)
 
 
 @router.get("/", response_model=MyBaseSchema[List[UserDetailSchema]])
-def list_users(skip: int = 0, limit: int = 100):
+async def list_users(skip: int = 0, limit: int = 100):
     """
     查询用户列表.
     """
     manager = UserManager()
-    users = manager.list_users(skip=skip, limit=limit)
+    users = await manager.list_users(skip=skip, limit=limit)
     return MyBaseSchema[List[UserDetailSchema]](data=users)
 
 
@@ -39,22 +39,22 @@ async def get_user_detail(user_uuid: str):
     指定UUID查询用户详情.
     """
     manager = UserManager()
-    user = manager.get_user_by_uuid(user_uuid)
+    user = await manager.get_user_by_uuid(user_uuid)
     return MyBaseSchema[UserDetailSchema](data=user)
 
 
 @router.delete("/{user_uuid}", response_model=MyBaseSchema)
-def delete_user(user_uuid: str):
+async def delete_user(user_uuid: str):
     """
     指定UUID删除用户.
     """
     manager = UserManager()
-    user = manager.delete_user_by_uuid(user_uuid)
+    user = await manager.delete_user_by_uuid(user_uuid)
     return MyBaseSchema(data=user)
 
 
 @router.patch("/{user_uuid}", response_model=MyBaseSchema[UserDetailSchema])
-def patch_user(user_uuid: str, user: UserPatchedSchema):
+async def patch_user(user_uuid: str, user: UserPatchedSchema):
     manager = UserManager()
-    user = manager.patch_user(user_uuid, user)
+    user = await manager.patch_user(user_uuid, user)
     return MyBaseSchema[UserDetailSchema](data=user)

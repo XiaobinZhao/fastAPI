@@ -13,52 +13,45 @@ class UserManager(object):
     def __init__(self, *args, **keywords):
         super(UserManager, self).__init__(*args, **keywords)
 
-    def list_users(self, skip: int = 0, limit: int = 100):
-        users = DB_User_Model().get_by_page(skip, limit)
+    async def list_users(self, skip: int = 0, limit: int = 100):
+        users = await DB_User_Model.async_filter(offset=skip, limit=limit)
         return users
 
-    def create_user(self, user: UserCreateViewModel):
-        user = DB_User_Model(**user.dict())
-        is_exists_same_user = user.get_by_conditions(login_name=user.login_name)
+    async def create_user(self, user: UserCreateViewModel):
+        is_exists_same_user = await DB_User_Model.async_filter(login_name=user.login_name)
         if is_exists_same_user:
             raise UserLoginNameExistException()
+        user = DB_User_Model(**user.dict())
         user.uuid = uuid4().hex
         user.password = crypt_context.hash(user.password)  # 加密密码
-        user = user.add()
+        user = await user.async_create()
         return user
 
-    def get_user_by_uuid(self, user_uuid):
-        user = DB_User_Model(uuid=user_uuid)
-        user = user.get_by_id()
+    async def get_user_by_uuid(self, user_uuid):
+        user = await DB_User_Model.async_first(uuid=user_uuid)
         if not user:
             raise UserNotFountException(message="User %s not found." % user_uuid)
         return user
 
-    def get_user_by_login_name(self, login_name):
-        user = DB_User_Model()
-        user = user.get_by_conditions(login_name=login_name)
+    async def get_user_by_login_name(self, login_name):
+        user = await DB_User_Model.async_first(login_name=login_name)
         if not user:
             raise UserNotFountException(message="User %s not found." % login_name)
         return user
 
-    def delete_user_by_uuid(self, user_uuid):
-        user = DB_User_Model(uuid=user_uuid)
-        user = user.get_by_id()
+    async def delete_user_by_uuid(self, user_uuid):
+        user = await DB_User_Model.async_delete(uuid=user_uuid)
         if not user:
             raise UserNotFountException(message="User %s not found." % user_uuid)
-        user.delete()
         result = MyCache.remove(user_uuid)
         logger.info("redis delete result: %s" % result)
         return None
 
-    def patch_user(self, user_uuid, patched_user):
-        user = DB_User_Model(uuid=user_uuid)
-        user = user.get_by_id()
-        if not user:
+    async def patch_user(self, user_uuid, patched_user):
+        row_count = await DB_User_Model.async_update(uuid=user_uuid, **patched_user.dict(exclude_unset=True))
+        if not row_count:
             raise UserNotFountException(message="User %s not found." % user_uuid)
-        for key, value in patched_user.dict(exclude_unset=True).items():
-            setattr(user, key, value)
-        user.update()
-        result = MyCache.set(user_uuid, json.dumps(user.as_dict()))
+        user = await DB_User_Model.async_first(uuid=user_uuid)
+        result = MyCache.set(user_uuid, json.dumps(user.to_dict()))
         logger.info("redis update result: %s" % result)
         return user

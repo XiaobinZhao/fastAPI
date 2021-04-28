@@ -14,7 +14,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     用户名/密码登录。成功返回token
     """
     user_manager = UserManager()
-    user = user_manager.get_user_by_login_name(form_data.username)
+    user = await user_manager.get_user_by_login_name(form_data.username)
     token_manager = TokenManager()
     token_manager.verify_password(form_data.password, user.password)
     encode_token, expire_at, created_at = token_manager.create_token(user)

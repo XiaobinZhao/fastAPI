@@ -73,7 +73,7 @@ class TokenManager(object):
         encoded_payload = base64.b64encode(json.dumps(jwt_payload.dict()).encode(encoding="utf-8"))
         create_at = datetime.now()
         expire_at = create_at + token_expires
-        MyCache.set(encoded_payload, json.dumps(user.as_dict(["password"])),
+        MyCache.set(encoded_payload, json.dumps(user.to_dict(except_keys=["password"])),
                     ex=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)  # redis缓存时长，单位s
         return encoded_payload, expire_at, create_at
 

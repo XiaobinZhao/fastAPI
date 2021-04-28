@@ -1,10 +1,8 @@
-from sqlalchemy import Boolean, Column, Enum, Integer, String
-from myapp.base.db import Model_Base
-from myapp.base.db import ModelDB
-from myapp.base.db import TimestampMixin
+from sqlalchemy import Boolean, Column, Enum, String
+from myapp.base.db import BaseModel
 
 
-class Desktop(Model_Base, TimestampMixin, ModelDB):
+class Desktop(BaseModel):
     """
     云桌面
     """

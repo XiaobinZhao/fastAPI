@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field
 from pydantic import root_validator
 from myapp.base.schema import SchemaMetaclass
@@ -27,6 +28,8 @@ class DesktopDetail(DesktopBase):
     node_uuid: str = Field(max_length=64)
     enabled: EnabledEnum = Field(EnabledEnum.enabled)
     is_attached_gpu: bool = Field(False)
+    created_at: Optional[datetime] = Field()
+    updated_at: Optional[datetime] = Field()
 
 
 class DesktopPatch(DesktopBase):

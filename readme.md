@@ -375,7 +375,77 @@ def run_migrations_online():
 
   ## db
 
+FastAPI 是基于startlet实现的[ASGI](https://asgi.readthedocs.io/en/latest/) framework，[Starlette](https://www.starlette.io/)使用 [Uvicorn](http://www.uvicorn.org/)（[daphne](https://github.com/django/daphne/), or [hypercorn](https://pgjones.gitlab.io/hypercorn/)）作为  ASGI server, Uvicorn 使用 [uvloop](https://github.com/MagicStack/uvloop) 来实现事件回环监听，来代替python asyncio内置的事件回环。那么基于fastAPI实现的api应该尽可能的使用这个异步的特性。所以db的实现就有同步和异步2中方式。
+
+### 同步db
+
 使用db_writer和db_reader进行装饰器封装，以达到数据库立刻执行和立刻关闭session。
+
+### 异步db
+
+SQLAlchemy1.4版本支持asyncio。根据官方文档 [Asynchronous IO Support for Core and ORM](https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#asynchronous-io-support-for-core-and-orm) 介绍，SQLAlchemy的内部是通过使用 [greenlet](https://greenlet.readthedocs.io/en/latest/) 库来实现的异步。支持面向IO：[`AsyncEngine.connect()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncEngine.connect) /[`AsyncConnection.execute()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncConnection.execute) 和面向ORM：[`AsyncSession`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncSession) class /[`AsyncSession.execute()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncSession.execute) 2种方式来实现异步：
+
+#### `AsyncEngine`方式
+
+```python
+from sqlalchemy import select
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Table
+from sqlalchemy.ext.asyncio import create_async_engine
+
+engine = create_async_engine("mysql+aiomysql://user:pass@host/dbname")
+
+t1 = Table(
+    "t1", meta, Column("id", Integer, primary_key=True), Column("name", String)
+)
+
+async with engine.connect() as conn:
+    result = await conn.execute(t1.select())
+    print(result.fetchall())
+```
+
+- driver要使用aiomysql 而不能在使用pymysql
+- 执行的结果是[`Result`](https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Result) 对象，一个 [`Row`](https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Row) objects 的列表
+- 可以使用`Row._mapping`取出结果的字典形式
+
+#### `AsyncSession`方式
+
+```python
+import asyncio
+
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
+
+Base = declarative_base()
+
+class A(Base):
+    __tablename__ = "a"
+
+    id = Column(Integer, primary_key=True)
+    data = Column(String)
+    
+engine = create_async_engine("mysql+aiomysql://user:pass@host/dbname")
+    sync with AsyncSession(engine) as session:
+        stmt = select(A).order_by(A.id)
+        result = await session.execute(stmt)
+```
+
+- ORM方式
+
+- 执行的结果是[`Result`](https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Result) 对象，但是与`AsyncEngine`不同，而是一个形如：`[(A,)]` 这样的形式。这样设计是因为如果有多表联查，比如 `select(A).join(B, A.c.id == B.c.user_id)`,那么返回的结果就是 `[(A, B)]`
+
+- `sqlalchemy.orm.exc.DetachedInstanceError`这个异常往往是引用了session之外的对象属性造成的。
+
+  > sqlalchemy.orm.exc.DetachedInstanceError: Instance <Desktop at 0x7f249d225310> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: http://sqlalche.me/e/14/bhk3)
+
+  解决方案：设置expire_on_commit为false.`sessionmaker(bind=eng, expire_on_commit=False)` expire_on_commit参数的含义是：该字段控制SQLAlchemy的对象刷新机制。默认是true，即在session调用commit之后会主动将同一个session在commit之前查询得到的ORM对象的_sa_instance_state.expire属性设置为true，这样再次读取该对象属性时将重载这个对象，方法是重新调用查询语句。如果设置为false，那么获取属性将不再重新调用查询语句，直接从缓存获取，那么也就不会用到session，也就不会再出现`DetachedInstanceError`.但是这样做是有一定的风险的，因为有脏数据的情况，可能会造成内数据不一致。
+
+
 
   ## exception
 

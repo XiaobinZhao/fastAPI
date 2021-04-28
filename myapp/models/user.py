@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Enum, String
-from myapp.base.db import Model_Base
-from myapp.base.db import ModelDB
-from myapp.base.db import TimestampMixin
+from myapp.base.db import BaseModel
 
 
-class User(Model_Base, TimestampMixin, ModelDB):
+class User(BaseModel):
     """
     用户
     """

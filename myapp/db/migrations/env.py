@@ -21,10 +21,9 @@ root = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                     os.path.pardir,
                     os.path.pardir)  # 定位到项目根目录
 sys.path.append(root)
-from myapp.models import Model_Base
+from myapp.models import metadata
 from myapp.conf.config import settings
-target_metadata = Model_Base.metadata
-
+url = settings.db.pymysql_url  # 数据库alembic管理依然使用pymysql; 业务查询使用aiomysql
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -44,9 +43,8 @@ def run_migrations_offline():
 
     """
     # url = config.get_main_option("sqlalchemy.url")
-    url = settings.db.url
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True)
+        url=url, target_metadata=metadata, literal_binds=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -64,13 +62,13 @@ def run_migrations_online():
     #     prefix='sqlalchemy.',
     #     poolclass=pool.NullPool)
     connectable = engine_from_config(
-        {"sqlalchemy.url": settings.db.url},  # 使用dynaconf文件的配置替换alembic.ini的配置
+        {"sqlalchemy.url": url},  # 使用dynaconf文件的配置替换alembic.ini的配置
         prefix='sqlalchemy.',
         poolclass=pool.NullPool)
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=metadata
         )
 
         with context.begin_transaction():

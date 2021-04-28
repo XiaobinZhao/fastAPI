@@ -1,208 +1,264 @@
-from json import loads as json_loads
+import inspect
+import asyncio
+from typing import List, Union
 from datetime import datetime
-from functools import wraps
-from sqlalchemy import create_engine
-from sqlalchemy import TIMESTAMP, Column
+from sqlalchemy import select
+from sqlalchemy import TIMESTAMP, Column, and_, desc
 from sqlalchemy.pool import QueuePool
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.engine.result import Result
+from sqlalchemy.orm import as_declarative, declared_attr
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from myapp.base import json_serializer
 from myapp.conf.config import settings
 
-Model_Base = declarative_base()
+IGNORE_ATTRS = ['redis']
+DB_Engine = create_async_engine(settings.db.aiomysql_url,
+                                echo=False,
+                                echo_pool=True,
+                                pool_size=5,  # 池最大连接数
+                                max_overflow=10,  # 池最多溢出连接数
+                                pool_recycle=600,  # 池回收connection的间隔，默认不回收（-1）。当前为10分钟。
+                                pool_timeout=15,  # 从池获取connection的最长等待时间，默认30s,当前 15s
+                                json_serializer=json_serializer,
+                                poolclass=QueuePool)  # 默认是QueuePool
 
 
-def json_serializer(s, **kw):
-    if isinstance(s, bytes):
-        return json_loads(s.decode('utf-8'), **kw)
-    else:
-        return json_loads(s, **kw)
-
-
-DB_Engine = create_engine(settings.db.url,
-                          echo=False,
-                          echo_pool=True,
-                          pool_size=10,  # 池最大连接数
-                          max_overflow=10,  # 池最多溢出连接数
-                          pool_recycle=600,  # 池回收connection的间隔，默认不回收（-1）。当前为10分钟。
-                          pool_timeout=15,  # 从池获取connection的最长等待时间，默认30s,当前 15s
-                          json_serializer=json_serializer,
-                          poolclass=QueuePool)  # 默认是QueuePool
-SessionFactory = sessionmaker(DB_Engine)
-
-
-def get_db_data_immediately(model_instance, db_session_result):
+class PropertyHolder(type):
     """
-    sqlachemy的查询结果是一个session对象，不是我们期望的model对象，所以这里直接把session对象的数据拿出来，转为model对象。
-    核心方法其实是把当前的session对象的value set 到当前model对象
-    :param model_instance: model 对象实例
-    :param db_session_result: sqlachemy的查询结果是一个session对象
-    :return: model 对象实例（s）
+    使用元类的方式重新构造，使其子类可以知道自己有哪些properties.
+    目的是为了实现序列化的时候可以区分异步和同步的属性.
     """
-    def _from_db(obj):
-        if not isinstance(obj, Model_Base):  # 如果不是DB model实例，直接返回
-            return obj
-        new_instance = model_instance.__class__()  # 重新得到一个实例
-        for key in model_instance.keys():
-            if key in model_instance:
-                setattr(new_instance, key, getattr(obj, key))
+    def __new__(mcs, name, bases, attrs):
+        new_cls = type.__new__(mcs, name, bases, attrs)
+        new_cls.property_fields = []
 
-        return new_instance
-
-    def _from_tuple_db(obj_tuple):
-        new_objs = [_from_db(obj) for obj in obj_tuple]
-        return tuple(new_objs)
-
-    if not db_session_result:
-        return db_session_result
-
-    if isinstance(db_session_result, list):
-        model_instances = []
-        for db_object in db_session_result:
-            if isinstance(db_object, tuple):
-                model_instances.append(_from_tuple_db(db_object))
-            else:
-                model_instances.append(_from_db(db_object))
-        return model_instances
-    else:
-        return _from_db(db_session_result)
+        for attr in list(attrs) + sum([list(vars(base))
+                                       for base in bases], []):
+            if attr.startswith('_') or attr in IGNORE_ATTRS:
+                continue
+            if isinstance(getattr(new_cls, attr), property):
+                new_cls.property_fields.append(attr)
+        return new_cls
 
 
-def db_session_writer(func):
-    @wraps(func)
-    def wrap(self, *args, **keywords):
-        try:
-            self.session = SessionFactory()
-            db_session_result = func(self, *args, **keywords)
-            self.session.commit()
-            result = get_db_data_immediately(self, db_session_result)
-            return result
-        except SQLAlchemyError:
-            self.session.rollback()
-            raise
-        finally:
-            self.session.close()
-            self.session = None
-    return wrap
+@as_declarative()
+class Base(object):
+    __name__: str
+
+    @declared_attr
+    def __tablename__(self) -> str:
+        return self.__name__.lower()
 
 
-def db_session_reader(func):
-    @wraps(func)
-    def wrap(self, *args, **keywords):
-        try:
-            self.session = SessionFactory()
-            db_session_result = func(self, *args, **keywords)
-            result = get_db_data_immediately(self, db_session_result)
-            return result
-        finally:
-            self.session.rollback()  # read 操作不应该对数据库有任何修改操作，否则 rollback
-            self.session.close()
-            self.session = None
-    return wrap
+class ModelMeta(Base.__class__, PropertyHolder):
+    """
+    Base是ORM的基类，他本身的元类也被改变（意味着不是type）,如果直接改变它则会让我们的数据类型丧失ORM的功能，
+    两全其美的办法是创建一个新的类同时继承Base和PropertyHolder, 使这个类成为新的混合元类.
+    """
+    ...
 
 
-class TimestampMixin(object):
+class BaseModel(Base, metaclass=ModelMeta):
+    """
+    SQLAlchemy 1.4 support asynchronous.so, 当前基类同时支持同步和异步查询
+    SQLAlchemy的ORM继承，在 `classmethod` 和 `staticmethod` 继承是和Python OOP面向对象的继承方案一致的。
+    也就是说：
+    被冠之`@staticmethod`的静态方法，会被继承，但是在子类调用的时候，却是调用的父类同名方法。
+    被冠之`@classmethod`的类方法，会被继承，子类调用的时候就是调用子类的这个方法。
+    """
+    # Sqlalchemy的抽象方法的定义，代表BaseModel含有抽象方法，需要被子类继承实现；
+    # 另外，抽象方法不需要写__tablename__属性
+    __abstract__ = True
+
     created_at = Column("created_at", TIMESTAMP(), default=datetime.now, nullable=True, comment="创建时间")
     updated_at = Column("updated_at", TIMESTAMP(), default=datetime.now, nullable=True, onupdate=datetime.now,
                         comment="最后修改时间")
 
-
-class ModelIterator(object):
-
-    def __init__(self, model, columns):
-        self.model = model
-        self.i = columns
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        n = next(self.i)
-        return n, getattr(self.model, n)
-
-
-class ModelDB(object):
-    def __init__(self):
-        self.session = None
-
-    @db_session_writer
-    def add(self):
-        self.session.add(self)
-        return self
-
-    @db_session_writer
-    def delete(self):
-        self.session.query(self.__class__).filter_by(uuid=self.uuid).delete()
-
-    @db_session_reader
-    def get_by_id(self):
-        return self.session.query(self.__class__).filter_by(uuid=self.uuid).first()
-
-    @db_session_reader
-    def get_by_conditions(self, **conditions):
-        return self.session.query(self.__class__).filter_by(**conditions).first()
-
-    @db_session_reader
-    def get_all(self):
-        return self.session.query(self.__class__).all()
-
-    @db_session_reader
-    def get_by_page(self, skip: int, limit: int):
-        return self.session.query(self.__class__).offset(skip).limit(limit).all()
-
-    @db_session_writer
-    def update(self):
-        new_dict = self.as_dict(except_keys=["id", "uuid", "created_at", "updated_at"])
-        result = self.session.query(self.__class__).filter_by(uuid=self.uuid).update(new_dict)
-        return result
-
-    def as_dict(self, except_keys=[]):
-        """Make the model object behave like a dict.
-           Includes attributes from joins.
-           :param except_keys: 不期望返回的字段
+    @classmethod
+    def results_to_dict(cls, results: Union[Result, List[Result]]) -> Union[List[dict], dict]:
         """
-        local = {}  # 需要实现__iter__
-        for key, value in self:
-            if key in except_keys:
-                continue
-            elif isinstance(value, datetime):
-                value = int(value.timestamp())  # 转为时间戳
-            local[key] = value
+        非ORM方式查询时，对结果是 [sqlalchemy.engine.Result] 类型的结果进行转化
+        """
+        if not isinstance(results, list):
+            return {col: val for col, val in results._mapping.items()}
+        list_dct = []
+        for row in results:
+            dct = {col: val for col, val in row._mapping.items()}  # SQLAlchemy 1.4支持
+            list_dct.append(dct)
+        return list_dct
 
-        # joined = dict([(k, v) for k, v in self.__dict__.items()
-        #               if not k[0] == '_'])
-        # local.update(joined)
-        return local
-
-    def iteritems(self):
-        """Make the model object behave like a dict."""
-        return self.as_dict().items()
-
-    def items(self):
-        """Make the model object behave like a dict."""
-        return self.as_dict().items()
-
-    def keys(self):
-        """Make the model object behave like a dict."""
-        return [key for key, value in self.iteritems()]
-
-    def __setitem__(self, key, value):
-        setattr(self, key, value)
-
-    def __getitem__(self, key):
-        return getattr(self, key)
-
-    def __contains__(self, key):
-        # Don't use hasattr() because hasattr() catches any exception, not only
-        # AttributeError. We want to passthrough SQLAlchemy exceptions
-        # (ex: sqlalchemy.orm.exc.DetachedInstanceError).
-        try:
-            getattr(self, key)
-        except AttributeError:
-            return False
+    def to_dict(self, except_keys=[]):
+        """
+        当前model 对象转为字典
+        :param except_keys: 不期望返回的字段
+        :return: 字典(dict)
+        """
+        if hasattr(self, "__mapper__"):
+            keys = [prop.key for prop in self.__mapper__.iterate_properties]
         else:
-            return True
+            keys = list(vars(self).keys())
+        keys = list(set(keys) - set(except_keys))  # 去除不期望返回的字段
+        format_data = {}
+        for key in keys:
+            format_data[key] = getattr(self, key)
+            if isinstance(format_data[key], datetime):
+                format_data[key] = int(format_data[key].timestamp())  # 转为时间戳
+        return format_data
 
-    def __iter__(self):
-        columns = [prop.key for prop in self.__mapper__.iterate_properties]
-        return ModelIterator(self, iter(columns))
+    async def result_to_async_dict(self, **data):
+        """
+        一些需要异步处理才能得到的属性，需要等待异步完成，才可以得到结果。
+        """
+        rv = {key: value for key, value in data.items()}
+        for field in self.property_fields:
+            property = getattr(self, field)
+            if inspect.iscoroutine(property):
+                rv[field] = await property
+            else:
+                rv[field] = property
+        return rv
+
+    @classmethod
+    async def async_filter(cls, *args, **kwargs):
+        """
+        根据条件查询获取, 如果数据不存在，返回空列表;支持分页，支持排序
+        :return:  model class列表 or []
+        """
+        table = cls.__table__
+        filters = []
+        limit = kwargs.pop('limit', '')
+        offset = kwargs.pop('offset', '')
+        order_by = kwargs.pop('order_by', 'created_at')
+        descending = kwargs.pop('desc', False)
+        for key, val in kwargs.items():
+            filters.append(getattr(table.c, key) == val)
+        async with AsyncSession(DB_Engine) as session:
+            if len(filters) > 1:
+                query = select(cls).where(and_(*filters))
+            else:
+                query = select(cls).where(*filters)
+            if limit:
+                query = query.limit(limit)
+            if offset:
+                query = query.offset(offset)
+            if order_by:
+                query = query.order_by(order_by) if not descending \
+                    else query.order_by(desc(order_by))
+            res = await session.execute(query)
+            res = res.fetchall()
+        # 以ORM方式查询返回的结果是一个tuple组成的数组：[(object1, object2)]
+        # 当前只有一个model的查询，所以直接取元组的第一个元素
+        res = [r[0] for r in res]
+        return res
+
+    @classmethod
+    async def async_first(cls, **kwargs):
+        """
+        根据条件查询获取第一条数据，如果数据不存在，返回空字典
+        :return:  model class or {}
+        """
+        table = cls.__table__
+        filters = []
+        for key, val in kwargs.items():
+            filters.append(getattr(table.c, key) == val)
+        async with AsyncSession(DB_Engine) as session:
+            if len(filters) > 1:
+                query = select(cls).where(and_(*filters))
+            else:
+                query = select(cls).where(*filters)
+            res = await session.execute(query)
+            res = res.fetchone()
+        if not res:
+            return {}
+        else:
+            return res[0]
+
+    @classmethod
+    async def async_in(cls, col, values=[]):
+        """
+        根据指定字段使用in关键字查询结果.
+        :param col: 指定的字段名称
+        :param values: in 方法指定的范围
+        :return: model class列表或者[]
+        """
+        table = cls.__table__
+        col_schema = getattr(table.c, col)
+        in_func = getattr(col_schema, 'in_')
+        query = select(cls).where(in_func(values))
+        async with AsyncSession(DB_Engine) as session:
+            res = await session.execute(query)
+            res = res.fetchall()
+        res = [r[0] for r in res]
+        return res
+
+    async def async_create(self):
+        """
+        orm model插入db
+        """
+        async with AsyncSession(DB_Engine, expire_on_commit=False) as session:
+            session.add(self)
+            await session.commit()
+        return self
+
+    @classmethod
+    async def async_update(cls, *args, **kwargs):
+        """
+        使用`AsyncEngine`方式更新数据
+        :param kwargs: 必须要包含uuid
+        :return: 更新的数据记录个数
+        """
+        table = cls.__table__
+        uuid = kwargs.pop('uuid')
+        async with DB_Engine.connect() as conn:
+            query = table.update(). \
+                where(table.c.uuid == uuid). \
+                values(**kwargs)
+            rv = await conn.execute(query, kwargs)
+            await conn.commit()
+        return rv.rowcount
+
+    @classmethod
+    async def async_delete(cls, **kwargs):
+        """
+        根据参数过滤结果集，并删除
+        :param kwargs: 过滤条件
+        :return: 删除的数据记录个数
+        """
+        table = cls.__table__
+        filters = []
+        for key, val in kwargs.items():
+            filters.append(getattr(table.c, key) == val)
+        async with DB_Engine.connect() as conn:
+            if len(filters) > 1:
+                query = table.delete().where(and_(*filters))
+            else:
+                query = table.delete().where(*filters)
+            rv = await conn.execute(query, kwargs)
+            await conn.commit()
+        return rv.rowcount
+
+
+if __name__ == '__main__':
+    from myapp.models.desktop import Desktop
+
+    async def filter_desktops():
+        dict = {'uuid': '11', 'vm_uuid': '11', 'display_name': '11', 'is_attached_gpu': False, 'is_default': False,
+                'enabled': 'enabled', 'node_uuid': '11', 'node_name': '11', 'desc': '11'}
+        d = Desktop()
+        d.uuid = "11"
+        d.vm_uuid = "11"
+        d.display_name = "11"
+        d.node_uuid = "11"
+        d.node_name = "11"
+
+        d = await d.async_create()
+        print(d.to_dict())
+        # d = await Desktop.async_delete(uuid="11")
+        # d = await Desktop.async_save(uuid="11", node_name="xxx")
+        # ds = await Desktop.async_filter(uuid="11")
+        # ds = await Desktop.async_delete(uuid="12")
+        # await Desktop.async_delete(uuid='11')
+    loops = asyncio.get_event_loop()
+    loops.run_until_complete(asyncio.wait([filter_desktops()]))
