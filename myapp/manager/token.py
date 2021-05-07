@@ -16,7 +16,7 @@ from myapp.manager.user import UserManager
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-def verify_token(token: str = Depends(oauth2_scheme)):
+async def verify_token(token: str = Depends(oauth2_scheme)):
     """
     这里不使用OAuth2的token方案。因为OAth2的token方案相对复杂，且考虑到与第三方对接。尤其token refresh的过程：
     1. login得到access_token 和 refresh_token,refresh_token比access_token的有效期更长
@@ -35,7 +35,7 @@ def verify_token(token: str = Depends(oauth2_scheme)):
     缺点：
     1. 需要保存会话信息，即需依赖redis这样的server端存储token和其过期时间点
     """
-    if not MyCache.get(token):
+    if not await MyCache.get(token):
         raise UnauthorizedException(message="Token is invalid or has been expired.")
     else:
         try:
@@ -46,22 +46,22 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         if user_uuid is None:
             raise UnauthorizedException("Token is invalid.")
         # 缓存用户数据到cache
-        if not MyCache.get(user_uuid)["result"]:
+        if not (await MyCache.get(user_uuid))["result"]:
             manager = UserManager()
             user = manager.get_user_by_uuid(user_uuid)
             if not user:
                 raise UnauthorizedException(message="User %s not exist." % user_uuid)
-            MyCache.set(user_uuid, json.dumps(user.as_dict(["password"])))
+            await MyCache.set(user_uuid, json.dumps(user.as_dict(["password"])))
             logger.info("cache missing, set user: %s to redis" % user_uuid)
     # 更新redis缓存时长，单位s
-    MyCache.expire(token, time=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+    await MyCache.expire(token, time=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
 
 
 class TokenManager(object):
     def __init__(self, *args, **keywords):
         super(TokenManager, self).__init__(*args, **keywords)
 
-    def create_token(self, user: DB_User_Model):
+    async def create_token(self, user: DB_User_Model):
         """
         token的生成方式有多种，比如jwt;非对称加密字符串；但是 jwt加密字符串过长且jwt本身的方案特性本系统没有采用；
         非对称AES加密又消耗时间过长，经验证加密一个字符串需要500ms左右。这行的话login API的耗时要达到1s,太长。所以简化为：
@@ -73,8 +73,8 @@ class TokenManager(object):
         encoded_payload = base64.b64encode(json.dumps(jwt_payload.dict()).encode(encoding="utf-8"))
         create_at = datetime.now()
         expire_at = create_at + token_expires
-        MyCache.set(encoded_payload, json.dumps(user.to_dict(except_keys=["password"])),
-                    ex=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)  # redis缓存时长，单位s
+        await MyCache.set(encoded_payload, json.dumps(user.to_dict(except_keys=["password"])),
+                          expire=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)  # redis缓存时长，单位s
         return encoded_payload, expire_at, create_at
 
     def verify_password(self, plain_password, hashed_password):

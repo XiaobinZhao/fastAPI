@@ -43,7 +43,7 @@ class UserManager(object):
         user = await DB_User_Model.async_delete(uuid=user_uuid)
         if not user:
             raise UserNotFountException(message="User %s not found." % user_uuid)
-        result = MyCache.remove(user_uuid)
+        result = await MyCache.remove(user_uuid)
         logger.info("redis delete result: %s" % result)
         return None
 
@@ -52,6 +52,6 @@ class UserManager(object):
         if not row_count:
             raise UserNotFountException(message="User %s not found." % user_uuid)
         user = await DB_User_Model.async_first(uuid=user_uuid)
-        result = MyCache.set(user_uuid, json.dumps(user.to_dict()))
+        result = await MyCache.set(user_uuid, json.dumps(user.to_dict()))
         logger.info("redis update result: %s" % result)
         return user

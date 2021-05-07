@@ -1,13 +1,22 @@
 import redis
+import json
+import asyncio
+import aioredis
 from loguru import logger
+from json.decoder import JSONDecodeError
 from myapp.conf.config import settings
 
 
 def format_result(func):
-    def gen_status(*args, **kwargs):
+    async def gen_status(*args, **kwargs):
         error, result = None, None
         try:
-            result = func(*args, **kwargs)
+            result = await func(*args, **kwargs)
+            if type(result) == bytes:
+                try:
+                    result = json.loads(result)
+                except JSONDecodeError as e:
+                    logger.error("Invalidate json str in redis. %s", str(e))
         except Exception as e:
             error = str(e)
         return {'result': result, 'error': error}
@@ -120,4 +129,72 @@ class RedisCache(Cache):
         return self._redis_client.delete(key)
 
 
-MyCache = RedisCache()
+class AsyncRedisCache(Cache):
+    """
+    异步的redis cache
+    """
+
+    def __init__(self):
+        self._pool = None
+
+    async def init_cache_connect(self):
+        try:
+            self._pool = await aioredis.create_redis_pool(settings.redis.url)
+            logger.info("Redis cache connecting ")
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+            if "Connect call failed" in str(e):  # 连接失败
+                raise Exception("Connect call failed. Connect redis failed, please check redis server status.")
+
+    async def close(self):
+        """
+        优雅的关闭redis 连接
+        """
+        self._pool.close()
+        await self._pool.wait_closed()
+        logger.info("Disconnect all redis tcp connection !")
+
+    @format_result
+    async def set(self, key, value, ex=None, px=None, nx=False):
+        """
+        set data with (key, value)
+        :param key:
+        :param value:
+        :param ex: 过期时间（秒)
+        :param px: 过期时间（毫秒)
+        :param nx: if set to True, set the value at key ``name`` to ``value`` only
+            if it does not exist
+        :return:
+        """
+        return await self._pool.set(key, value, expire=ex, pexpire=px, exist=nx)
+
+    @format_result
+    async def get(self, key):
+        return await self._pool.get(key)
+
+    @format_result
+    async def expire(self, key, time):
+        return await self._pool.expire(key, time)
+
+    @format_result
+    async def remove(self, key):
+        return await self._pool.delete(key)
+
+
+MyCache = AsyncRedisCache()
+
+
+if __name__ == '__main__':
+    async def filter_desktops():
+        s = await MyCache.set("xxx", "xxx", ex=20)
+        d = await MyCache.get("xxx")   # ConnectClosedError(Reader at end of file)
+        f = await MyCache.get("xxx")   # ConnectRefusedError([Errno 111] Connect call failed ('127.0.0.1', 6379))
+        g = await MyCache.get("xxx")
+        g1 = await MyCache.get("xxx")
+        g2 = await MyCache.get("xxx")
+        h = await MyCache.get("yyy")
+        print(s, d, f, g, g1, g2, h)
+
+    loops = asyncio.get_event_loop()
+    loops.run_until_complete(asyncio.wait([filter_desktops()]))
+

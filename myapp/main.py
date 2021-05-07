@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
+from myapp.base.cache import MyCache
 from myapp.openapi import custom_openapi
 from myapp.conf.config import settings
 from myapp.conf.loginit import config as log_configs
@@ -19,6 +20,17 @@ logger.configure(**log_configs)  # 配置loguru logger
 
 app = FastAPI(docs_url=None, redoc_url=None)  # docs url 重新定义
 custom_openapi(app)  # 设置自定义openAPI
+
+
+@app.on_event('startup')
+async def startup_event():
+    await MyCache.init_cache_connect()
+    logger.info("Redis cache connect success !")
+
+
+@app.on_event('shutdown')
+async def shutdown_event():
+    await MyCache.close()
 
 
 @app.exception_handler(HTTPException)
