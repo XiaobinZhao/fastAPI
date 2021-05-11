@@ -66,4 +66,5 @@ if __name__ == '__main__':
                 host=settings.default.host,
                 port=settings.default.port,
                 reload=True,
-                workers=1)
+                workers=1,
+                limit_concurrency=10)

@@ -35,7 +35,8 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
     缺点：
     1. 需要保存会话信息，即需依赖redis这样的server端存储token和其过期时间点
     """
-    if not await MyCache.get(token):
+    token_in_redis = await MyCache.get(token)
+    if not token_in_redis["result"]:
         raise UnauthorizedException(message="Token is invalid or has been expired.")
     else:
         try:
@@ -74,7 +75,7 @@ class TokenManager(object):
         create_at = datetime.now()
         expire_at = create_at + token_expires
         await MyCache.set(encoded_payload, json.dumps(user.to_dict(except_keys=["password"])),
-                          expire=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)  # redis缓存时长，单位s
+                          ex=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)  # redis缓存时长，单位s
         return encoded_payload, expire_at, create_at
 
     def verify_password(self, plain_password, hashed_password):

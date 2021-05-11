@@ -20,7 +20,7 @@ DB_Engine = create_async_engine(settings.db.aiomysql_url,
                                 pool_size=5,  # 池最大连接数
                                 max_overflow=10,  # 池最多溢出连接数
                                 pool_recycle=600,  # 池回收connection的间隔，默认不回收（-1）。当前为10分钟。
-                                pool_timeout=15,  # 从池获取connection的最长等待时间，默认30s,当前 15s
+                                pool_timeout=5,  # 从池获取connection的最长等待时间，默认30s,当前 15s
                                 json_serializer=json_serializer,
                                 poolclass=QueuePool)  # 默认是QueuePool
 
