@@ -13,7 +13,7 @@ class MyBaseResponse(JSONResponse):
     """
     统一response的返回值结构
     """
-    def __init__(self, code, message="", data={}, status_code=200):
-        response_dict = MyBaseSchema(data=data, code=code, message=message).dict()
+    def __init__(self, code, message="", data={}, status_code=200, is_success=1):
+        response_dict = MyBaseSchema(data=data, code=code, message=message, is_success=is_success).dict()
         super(MyBaseResponse, self).__init__(content=response_dict, status_code=status_code)
 
