@@ -44,7 +44,8 @@ async def http_exception_handler(request, exc):
     return MyBaseResponse(code=getattr(exc, "code", code),
                           message=getattr(exc, "message", "") or str(exc.detail),
                           data=getattr(exc, "data", {}),
-                          status_code=exc.status_code)
+                          status_code=exc.status_code,
+                          is_success=0)
 
 
 @app.exception_handler(RequestValidationError)
@@ -52,7 +53,8 @@ async def validation_exception_handler(request, exc):
     return MyBaseResponse(code=getattr(exc, "code", ErrorCode().REQUEST_VALIDATE_ERROR),
                           message=getattr(exc, "message", "") or str(exc),
                           data=getattr(exc, "data", {}),
-                          status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                          status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                          is_success=0)
 
 
 app.mount("/static", StaticFiles(directory="myapp/static"), name="static")
