@@ -8,9 +8,12 @@ class Code:
 
 class ErrorCode(Code, ErrorCodeBase):
 
-    def __init__(self, status):
-        super(ErrorCode, self).__init__()
-        self.USER_LOGIN_NAME_EXIST_ERROR = self.code_type + "_" + str(status) + "_" + self.code_business + "_0100"  # 登录名重复
+    @classmethod
+    def USER_LOGIN_NAME_EXIST_ERROR(cls, status):
+        _code = cls.code_type + "_" + str(status) + "_" + cls.code_business + "_0100"  # 登录名重复
+        _zh = "用户登录名不能重复"
+        _en = "the user login name cannot be duplicated"
+        return {"code": _code, "zh": _zh, "en": _en}
 
 
 class SuccessCode(Code, SuccessCodeBase):

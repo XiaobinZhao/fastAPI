@@ -12,13 +12,42 @@ class Code(object):
 
 
 class ErrorCode(Code):
-    def __init__(self):
-        self.INTERNAL_ERROR = self.code_type + "_500_" + self.code_business + "_0000"  # 未知错误
-        self.REQUEST_VALIDATE_ERROR = self.code_type + "_422_" + self.code_business + "_0001"  # request参数校验失败
-        self.NOT_FOUND_ERROR = self.code_type + "_404_" + self.code_business + "_0002"  # 资源不存在
-        self.UNAUTHORIZED_ERROR = self.code_type + "_401_" + self.code_business + "_0003"  # 没有提供正确的token
+    @classmethod
+    def INTERNAL_ERROR(cls):
+        _code = cls.code_type + "_500_" + cls.code_business + "_0000"  # 未知错误
+        _zh = "未知系统错误"
+        _en = "internal error"
+        return {"code": _code, "zh": _zh, "en": _en}
+
+    @classmethod
+    def REQUEST_VALIDATE_ERROR(cls):
+        _code = cls.code_type + "_422_" + cls.code_business + "_0001"  # request参数校验失败
+        _zh = "request 请求参数校验失败，请检查参数格式"
+        _en = "request validation error，please check your parameters"
+        return {"code": _code, "zh": _zh, "en": _en}
+
+    @classmethod
+    def NOT_FOUND_ERROR(cls):
+        _code = cls.code_type + "_404_" + cls.code_business + "_0002"  # 资源不存在
+        _zh = "请求的资源不存在"
+        _en = "the request resource not exist"
+        return {"code": _code, "zh": _zh, "en": _en}
+
+    @classmethod
+    def UNAUTHORIZED_ERROR(cls):
+        _code = cls.code_type + "_401_" + cls.code_business + "_0003"  # 没有提供正确的token
+        _zh = "认证失败, 请提供正确的登录名/密码或者token"
+        _en = "authentication failed, please check your login_name/password or token"
+        return {"code": _code, "zh": _zh, "en": _en}
 
 
 class SuccessCode(Code):
     def __init__(self):
         self.SUCCESS = Code.code_type + "_200_" + self.code_business + "_9999"
+
+    @classmethod
+    def SUCCESS(cls):
+        _code = cls.code_type + "_200_" + cls.code_business + "_9999"
+        _zh = "成功"
+        _en = "success"
+        return {"code": _code, "zh": _zh, "en": _en}

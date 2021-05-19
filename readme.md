@@ -20,6 +20,8 @@ python和其他语言java/nodejs等一样，都需要进项项目级别的包管
 5. `当当~当~当~~~`！Poetry出现了
 6. poetry是一款可以管理Python依赖、环境，同時可以用于Python工程打包和发布的一款第三方工具包。poetry通过配置文件pyproject.toml来完成依赖管理、环境配置、基本信息配置等功能。相当于把Python項目中的Pipfile、setup.py、setup.cfg、requirements.txt、MANIFEST.in融合到一起。通过pyproject.toml文件，不仅可以配置依赖包，还可以用于区分开发、测试、生产环境、配置源路径。
 
+## poetry 安装
+
 poetry 安装会很慢，建议手动下载poetry的安装文件，可以到百度网盘下载（链接: https://pan.baidu.com/s/1Luy4GKYVRHiL9HnKZF_ZBg 提取码: hgac）。下载完成之后，使用`python3.7 get-poetry.py --file poetry-1.1.4-linux.tar.gz` 安装。
 
 - `poetry init` 生成项目配置文件pyproject.toml
@@ -28,6 +30,56 @@ poetry 安装会很慢，建议手动下载poetry的安装文件，可以到百�
 - `poetry add xxxx`，为项目添加依赖包。添加依赖会自动创建virtual env。如果不添加依赖，直接使用env，那么执行`poetry env use <python3.7路径>`，可以使用`whereis python`查询到python3.7的路径
 - 得到虚拟环境之后，可以执行`poetry intstall` 安装依赖。
 - `poetry show -t`可以查看当前环境安装的依赖，并且显示依赖关系
+
+## poetry使用实践
+
+### 指定python版本
+
+如果当前环境存在多个python版本，比如python2.7/python3.5/python3.8 3个python环境，那么poetry 引用的python版本可能并不是你期望的,比如运行poetry命令出现：
+
+> /root/.poetry/lib/poetry/_vendor/py2.7/subprocess32.py:149: RuntimeWarning: The _posixsubprocess module is not being used. Child process reliability may suffer if your program uses threads.
+>   "program uses threads.", RuntimeWarning)
+>
+> Python 2.7 will no longer be supported in the next feature release of Poetry (1.2).
+> You should consider updating your Python version to a supported one.
+>
+> Note that you will still be able to manage Python 2.7 projects by using the env command.
+> See https://python-poetry.org/docs/managing-environments/ for more information.
+
+可以使用以下步骤指定，参看`https://github.com/python-poetry/poetry/issues/655#issuecomment-532608560`,官网建议使用pyenv来做python多版本控制，具体可以参看：` https://python-poetry.org/docs/managing-environments/ `：
+
+- 查看当前多个python版本的入口，可以使用type、whereis等命令，比如：
+
+  ```shell
+  root@xview:~# type python
+  python 已被录入哈希表 (/usr/bin/python)
+  root@xview:~# type python2.7
+  python2.7 是 /usr/bin/python2.7
+  root@xview:~# type python3.5
+  python3.5 是 /usr/bin/python3.5
+  root@xview:~# type python3
+  python3 是 /usr/bin/python3
+  root@xview:~# type python3.8
+  python3.8 是 /usr/local/bin/python3.8
+  ```
+
+- 使用指定的python版本安装poetry: `python3.8 get-poetry.py --file poetry-1.1.4-linux.tar.gz`
+
+- 修改`~/.poetry/bin/poetry`第一行
+
+  >  #!/usr/bin/env python ---> 改为  #!/usr/bin/env python3.8
+
+- 执行poetry命令，则不再出现python2.7的告警
+
+### poetry 指定pypi源
+
+使用poetry的另一个问题是大陆访问pypi速度太慢,在使用pip时,我们可以通过添加源来解决,尽管poetry也可以使用pip的镜像源下载,然而在分析包之间的依赖关系时似乎依然是走的pypi,要解决这个问题,我们可以在每个项目下的pyproject.toml文件内写入配置文件,比如使用ali 源。
+
+```
+[[tool.poetry.source]]
+name = 'aliyun'
+url = 'http://mirrors.aliyun.com/pypi/simple/'
+```
 
 # dynaconf管理配置文件
 

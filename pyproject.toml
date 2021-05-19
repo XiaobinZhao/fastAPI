@@ -27,6 +27,7 @@ sqlalchemy = "~1.4.11"
 attrdict = "~2.0.1"
 pymysql = "~0.9.3"
 aiomysql = "~0.0.21"
+cython = "^0.29.23"
 
 [tool.poetry.dev-dependencies]
 pytest = "~6.2.2"

@@ -38,9 +38,9 @@ async def http_exception_handler(request, exc):
     """
     拦截所有的exception，返回的数据格式统一为 myapp.base.schema.ResponseModel
     """
-    code = ErrorCode().INTERNAL_ERROR  # 默认0000为系统未知错误code
+    code = ErrorCode.INTERNAL_ERROR()["code"]  # 默认0000为系统未知错误code
     if exc.status_code == status.HTTP_401_UNAUTHORIZED:
-        code = ErrorCode().UNAUTHORIZED_ERROR
+        code = ErrorCode.UNAUTHORIZED_ERROR()["code"]
     return MyBaseResponse(code=getattr(exc, "code", code),
                           message=getattr(exc, "message", "") or str(exc.detail),
                           data=getattr(exc, "data", {}),
@@ -49,7 +49,7 @@ async def http_exception_handler(request, exc):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    return MyBaseResponse(code=getattr(exc, "code", ErrorCode().REQUEST_VALIDATE_ERROR),
+    return MyBaseResponse(code=getattr(exc, "code", ErrorCode.REQUEST_VALIDATE_ERROR()["code"]),
                           message=getattr(exc, "message", "") or str(exc),
                           data=getattr(exc, "data", {}),
                           status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
