@@ -5,8 +5,8 @@ Wants=redis-server.service mysql.service
 
 [Service]
 Type=forking
-ExecStart=/root/workspace/fastAPI/myapp.sh start
-ExecStop=/root/workspace/fastAPI/myapp.sh stop
+ExecStart=/opt/myapp/myapp.sh start
+ExecStop=/opt/myapp/myapp.sh stop
 #Restart=always
 #RestartSec=5s
 #StartLimitInterval=0
