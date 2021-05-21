@@ -65,7 +65,7 @@ function start()
         -k myapp.worker.MyUvicornWorker \
         --timeout 60 \
         --log-level debug \
-        --access-logfile ${LOG_PATH}/app.log\
+        --access-logfile ${LOG_PATH}/app.log \
         --error-logfile ${LOG_PATH}/app.log \
         -p ${PID_PATH} &
 }
