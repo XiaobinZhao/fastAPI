@@ -1,5 +1,6 @@
 from uuid import uuid4
 from myapp.models.desktop import Desktop as DB_Desktop_Model
+from myapp.base.schema import PageSchema
 from myapp.schema.desktop import DesktopBase as DesktopBaseViewModel
 from myapp.exception.desktop import DesktopNotFountException
 
@@ -11,6 +12,10 @@ class DesktopManager(object):
     async def list_desktops(self, skip: int = 0, limit: int = 100):
         desktops = await DB_Desktop_Model.async_filter(limit=limit, offset=skip)
         return desktops
+
+    async def page_desktops(self, skip: int = 0, limit: int = 100):
+        desktops, total_count = await DB_Desktop_Model.async_filter(is_get_total_count=True, limit=limit, offset=skip)
+        return PageSchema(total=total_count, limit=limit, skip=skip, data=desktops)
 
     async def create_desktop(self, desktop: DesktopBaseViewModel):
         desktop = DB_Desktop_Model(**desktop.dict())

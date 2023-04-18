@@ -24,6 +24,16 @@ class MyBaseSchema(GenericModel, Generic[ResponseData]):
         return value
 
 
+class PageSchema(GenericModel, Generic[ResponseData]):
+    """
+    分页的返回值
+    """
+    total: int = Field(default=0, description="共计")
+    limit: int = Field(default=10, description="每页值")
+    skip: int = Field(default=0, description="偏移量")
+    data: ResponseData = Field(default={}, description="response数据包含在这个字段，数据可能是list或者dict.")
+
+
 class EnabledEnum(str, Enum):
     enabled = "enabled"
     disabled = "disabled"
