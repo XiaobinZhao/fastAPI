@@ -49,10 +49,10 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
         # 缓存用户数据到cache
         if not (await MyCache.get(user_uuid))["result"]:
             manager = UserManager()
-            user = manager.get_user_by_uuid(user_uuid)
+            user = await manager.get_user_by_uuid(user_uuid)
             if not user:
                 raise UnauthorizedException(message="User %s not exist." % user_uuid)
-            await MyCache.set(user_uuid, json.dumps(user.as_dict(["password"])))
+            await MyCache.set(user_uuid, json.dumps(user.to_dict(["password"])))
             logger.info("cache missing, set user: %s to redis" % user_uuid)
     # 更新redis缓存时长，单位s
     await MyCache.expire(token, time=constant.ACCESS_TOKEN_EXPIRE_MINUTES * 60)

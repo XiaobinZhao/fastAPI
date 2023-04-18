@@ -22,7 +22,7 @@ python和其他语言java/nodejs等一样，都需要进项项目级别的包管
 
 ## poetry 安装
 
-poetry 安装会很慢，建议手动下载poetry的安装文件，可以到百度网盘下载（链接: https://pan.baidu.com/s/1Luy4GKYVRHiL9HnKZF_ZBg 提取码: hgac）。下载完成之后，使用`python3.7 get-poetry.py --file poetry-1.1.4-linux.tar.gz` 安装。
+poetry 安装会很慢（从github上拉取文件），建议手动下载poetry的[安装文件]([Releases · python-poetry/poetry (github.com)](https://github.com/python-poetry/poetry/releases))，可以到百度网盘下载（链接: https://pan.baidu.com/s/1Luy4GKYVRHiL9HnKZF_ZBg 提取码: hgac）。下载完成之后，使用`python3.7 get-poetry.py --file poetry-1.1.4-linux.tar.gz` 安装。
 
 - `poetry init` 生成项目配置文件pyproject.toml
 - 如果是空的项目，可以使用`poetry create <project_name>`开始
@@ -30,6 +30,22 @@ poetry 安装会很慢，建议手动下载poetry的安装文件，可以到百�
 - `poetry add xxxx`，为项目添加依赖包。添加依赖会自动创建virtual env。如果不添加依赖，直接使用env，那么执行`poetry env use <python3.7路径>`，可以使用`whereis python`查询到python3.7的路径
 - 得到虚拟环境之后，可以执行`poetry intstall` 安装依赖。
 - `poetry show -t`可以查看当前环境安装的依赖，并且显示依赖关系
+
+注意
+
+> 项目使用的是poetry 1.1.4版本；
+
+> 当前的最新版本已经到了1.4.2， 这个版本的安装文件poetry.tar.gz 已经很小，只有1M多，可以尝试新版本
+
+> 当前项目使用的python版本是3.7
+
+> 最好在 ~/.pip/pip.conf配置好国内pip源
+>
+> ```ini
+> [global]
+> index-url = https://mirrors.aliyun.com/pypi/simple/
+> trusted-host = mirrors.aliyun.com
+> ```
 
 ## poetry使用实践
 
@@ -237,7 +253,7 @@ python项目的配置文件有多种，比如
 - [Convenient parser](https://loguru.readthedocs.io/en/stable/overview.html#convenient-parser) [`parse()`](https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.parse)方法可以方便的解析log日志内容
 - [Exhaustive notifier](https://loguru.readthedocs.io/en/stable/overview.html#exhaustive-notifier) 使用[`notifiers`](https://github.com/notifiers/notifiers)组件可以方便的结合loguru实现邮件等方式进行消息通知
 
-OpenAPI
+# OpenAPI
 
 Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成了自动化实现文档的功能，主要的技术实现是基于pydantic进行数据模型等接口定义，然后生成swagger JSON定义文档，结合 [Swagger UI](https://github.com/swagger-api/swagger-ui) 即可得到自动生成的交互式 API 文档，另外还支持 [ReDoc](https://github.com/Rebilly/ReDoc)格式的。
 
