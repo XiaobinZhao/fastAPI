@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import status
 from fastapi import Depends
-from myapp.base.schema import MyBaseSchema
+from myapp.base.schema import MyBaseSchema, PageSchema
 from myapp.base.router import MyRouter
 from myapp.schema.desktop import DesktopBase as DesktopBaseSchema
 from myapp.schema.desktop import DesktopDetail as DesktopDetailSchema
@@ -29,6 +29,16 @@ async def list_desktops(skip: int = 0, limit: int = 100):
     manager = DesktopManager()
     desktops = await manager.list_desktops(skip=skip, limit=limit)
     return MyBaseSchema[List[DesktopDetailSchema]](data=desktops)
+
+
+@router.get("/page", response_model=MyBaseSchema[PageSchema[List[DesktopDetailSchema]]])
+async def page_desktops(skip: int = 0, limit: int = 10):
+    """
+    查询桌面列表.
+    """
+    manager = DesktopManager()
+    page_data = await manager.page_desktops(skip=skip, limit=limit)
+    return MyBaseSchema[PageSchema[List[DesktopDetailSchema]]](data=page_data)
 
 
 @router.get("/{desktop_uuid}", response_model=MyBaseSchema[DesktopDetailSchema])

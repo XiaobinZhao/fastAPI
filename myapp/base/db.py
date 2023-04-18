@@ -121,7 +121,7 @@ class BaseModel(Base, metaclass=ModelMeta):
         return rv
 
     @classmethod
-    async def async_filter(cls, *args, **kwargs):
+    async def async_filter(cls, is_get_total_count=False, *args, **kwargs):
         """
         根据条件查询获取, 如果数据不存在，返回空列表;支持分页，支持排序
         :return:  model class列表 or []
@@ -135,10 +135,13 @@ class BaseModel(Base, metaclass=ModelMeta):
         for key, val in kwargs.items():
             filters.append(getattr(table.c, key) == val)
         async with AsyncSession(DB_Engine) as session:
-            if len(filters) > 1:
-                query = select(cls).where(and_(*filters))
-            else:
-                query = select(cls).where(*filters)
+            query = select(cls).where(and_(*filters)) if len(filters) > 1 else select(cls).where(*filters)
+            if is_get_total_count:
+                inspector = inspect(cls)  # inspector.primary_key[0]：主键，inspector.primary_key[0].name：主键名
+                query_count = select(func.count(inspector.primary_key[0])).where(and_(*filters)) if len(filters) > 1 \
+                    else select(func.count(inspector.primary_key[0])).where(*filters)
+                total_count_coroutine = await session.execute(query_count)
+                total_count = total_count_coroutine.scalar()
             if limit:
                 query = query.limit(limit)
             if offset:
@@ -151,7 +154,7 @@ class BaseModel(Base, metaclass=ModelMeta):
         # 以ORM方式查询返回的结果是一个tuple组成的数组：[(object1, object2)]
         # 当前只有一个model的查询，所以直接取元组的第一个元素
         res = [r[0] for r in res]
-        return res
+        return res, total_count if is_get_total_count else res
 
     @classmethod
     async def async_first(cls, **kwargs):
