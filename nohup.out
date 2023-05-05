@@ -1,0 +1,719 @@
+2023-04-28 09:26:29,698 INFO sqlalchemy.pool.impl.QueuePool Connection <sqlalchemy.dialects.mysql.aiomysql.AsyncAdapt_aiomysql_connection object at 0xb41fb12c> exceeded timeout; recycling
+--- Logging error ---
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+RuntimeError: reentrant call inside <_io.BufferedWriter name='/var/log/myapp/app.log'>
+Call stack:
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 253, in handle_hup
+    self.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 448, in reload
+    self.app.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 61, in reload
+    self.do_load_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 35, in do_load_config
+    self.load_default_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 44, in load_default_config
+    self.cfg = Config(self.usage, prog=self.prog)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 49, in __init__
+    self.settings = make_settings()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 35, in make_settings
+    settings[setting.name] = setting.copy()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 983, in emit
+    msg = self.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 829, in format
+    return fmt.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 569, in format
+    record.message = record.getMessage()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 329, in getMessage
+    msg = str(self.msg)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+Message: 'Worker with pid %s was terminated due to signal %s'
+Arguments: (17207, 1)
+--- Logging error ---
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+RuntimeError: reentrant call inside <_io.BufferedWriter name='/var/log/myapp/app.log'>
+Call stack:
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 253, in handle_hup
+    self.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 448, in reload
+    self.app.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 61, in reload
+    self.do_load_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 35, in do_load_config
+    self.load_default_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 44, in load_default_config
+    self.cfg = Config(self.usage, prog=self.prog)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 49, in __init__
+    self.settings = make_settings()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 35, in make_settings
+    settings[setting.name] = setting.copy()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 983, in emit
+    msg = self.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 829, in format
+    return fmt.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 569, in format
+    record.message = record.getMessage()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 329, in getMessage
+    msg = str(self.msg)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+Message: 'Worker with pid %s was terminated due to signal %s'
+Arguments: (17211, 1)
+--- Logging error ---
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+RuntimeError: reentrant call inside <_io.BufferedWriter name='/var/log/myapp/app.log'>
+Call stack:
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 253, in handle_hup
+    self.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 448, in reload
+    self.app.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 61, in reload
+    self.do_load_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 35, in do_load_config
+    self.load_default_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 44, in load_default_config
+    self.cfg = Config(self.usage, prog=self.prog)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 49, in __init__
+    self.settings = make_settings()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 35, in make_settings
+    settings[setting.name] = setting.copy()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 983, in emit
+    msg = self.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 829, in format
+    return fmt.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 569, in format
+    record.message = record.getMessage()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 329, in getMessage
+    msg = str(self.msg)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+Message: 'Worker with pid %s was terminated due to signal %s'
+Arguments: (17213, 1)
+--- Logging error ---
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+RuntimeError: reentrant call inside <_io.BufferedWriter name='/var/log/myapp/app.log'>
+Call stack:
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 253, in handle_hup
+    self.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 448, in reload
+    self.app.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 61, in reload
+    self.do_load_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 35, in do_load_config
+    self.load_default_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 44, in load_default_config
+    self.cfg = Config(self.usage, prog=self.prog)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 49, in __init__
+    self.settings = make_settings()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 35, in make_settings
+    settings[setting.name] = setting.copy()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 983, in emit
+    msg = self.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 829, in format
+    return fmt.format(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 569, in format
+    record.message = record.getMessage()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 329, in getMessage
+    msg = str(self.msg)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+Message: 'Worker with pid %s was terminated due to signal %s'
+Arguments: (17215, 1)
+--- Logging error ---
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+RuntimeError: reentrant call inside <_io.BufferedWriter name='/var/log/myapp/app.log'>
+Call stack:
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 253, in handle_hup
+    self.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 448, in reload
+    self.app.reload()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 61, in reload
+    self.do_load_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 35, in do_load_config
+    self.load_default_config()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 44, in load_default_config
+    self.cfg = Config(self.usage, prog=self.prog)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 49, in __init__
+    self.settings = make_settings()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/config.py", line 35, in make_settings
+    settings[setting.name] = setting.copy()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1344, in warning
+    self._log(WARNING, msg, args, **kwargs)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1468, in _log
+    self.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1478, in handle
+    self.callHandlers(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1540, in callHandlers
+    hdlr.handle(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 854, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 1081, in emit
+    StreamHandler.emit(self, record)
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 987, in emit
+    self.flush()
+  File "/usr/local/lib/python3.7/logging/__init__.py", line 967, in flush
+    self.stream.flush()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 533, in reap_workers
+    os.WTERMSIG(status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/glogging.py", line 261, in warning
+    self.error_log.warning(msg, *args, **kwargs)
+Message: 'Worker with pid %s was terminated due to signal %s'
+Arguments: (17210, 1)
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 202, in run
+    self.manage_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 551, in manage_workers
+    self.spawn_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 623, in spawn_workers
+    time.sleep(0.1 * random.random())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 525, in reap_workers
+    raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 229, in run
+    self.halt(reason=inst.reason, exit_status=inst.exit_status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 342, in halt
+    self.stop()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 393, in stop
+    time.sleep(0.1)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 525, in reap_workers
+    raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 202, in run
+    self.manage_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 551, in manage_workers
+    self.spawn_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 623, in spawn_workers
+    time.sleep(0.1 * random.random())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 525, in reap_workers
+    raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 231, in run
+    super().run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 229, in run
+    self.halt(reason=inst.reason, exit_status=inst.exit_status)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 342, in halt
+    self.stop()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 393, in stop
+    time.sleep(0.1)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+    self.reap_workers()
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/gunicorn/arbiter.py", line 525, in reap_workers
+    raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84293, microseconds=28025), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13621, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 46, 18796, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=752675), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13623, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 45, 965649, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 205, in _terminate_file
+    os.rename(old_path, renamed_path)
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log' -> '/var/log/myapp/app.2023-05-05_15-01-45_976287.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=826825), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13622, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 45, 975054, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 205, in _terminate_file
+    os.rename(old_path, renamed_path)
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log' -> '/var/log/myapp/app.2023-05-05_15-01-45_976287.log'
+--- End of logging error ---
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=685447), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13625, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 46, 29476, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=418634), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13626, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 46, 60081, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=363580), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13624, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 45, 998822, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 205, in _terminate_file
+    os.rename(old_path, renamed_path)
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log' -> '/var/log/myapp/app.2023-05-05_15-01-45_996287.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=198634), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13628, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 45, 987191, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(days=6, seconds=84292, microseconds=311193), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=13627, name='MainProcess'), 'thread': (id=3083265792, name='MainThread'), 'time': datetime(2023, 5, 5, 15, 1, 46, 3620, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(seconds=70416, microseconds=309296), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=31898, name='MainProcess'), 'thread': (id=3082434304, name='MainThread'), 'time': datetime(2023, 5, 6, 11, 36, 12, 120767, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(seconds=70417, microseconds=72024), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=31895, name='MainProcess'), 'thread': (id=3082434304, name='MainThread'), 'time': datetime(2023, 5, 6, 11, 36, 12, 114901, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(seconds=70417, microseconds=324369), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=31891, name='MainProcess'), 'thread': (id=3082434304, name='MainThread'), 'time': datetime(2023, 5, 6, 11, 36, 12, 137822, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(seconds=70417, microseconds=69392), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=31892, name='MainProcess'), 'thread': (id=3082434304, name='MainThread'), 'time': datetime(2023, 5, 6, 11, 36, 12, 145938, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+--- Logging error in Loguru Handler #1 ---
+Record was: {'elapsed': datetime.timedelta(seconds=70417, microseconds=472438), 'exception': None, 'extra': {}, 'file': (name='cache.py', path='/home/zephyr/ITEM/fastapi/myapp/base/cache.py'), 'function': 'close', 'level': (name='INFO', no=20, icon='ℹ️'), 'line': 155, 'message': 'Disconnect all redis tcp connection !', 'module': 'cache', 'name': 'myapp.base.cache', 'process': (id=31890, name='MainProcess'), 'thread': (id=3082434304, name='MainThread'), 'time': datetime(2023, 5, 6, 11, 36, 12, 233773, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800), 'CST'))}
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 32, in get_ctime
+    return float(os.getxattr(filepath, b"user.loguru_crtime"))
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_handler.py", line 287, in _queued_writer
+    self._sink.write(message)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 174, in write
+    self._terminate_file(is_rotating=True)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_file_sink.py", line 202, in _terminate_file
+    creation_time = get_ctime(old_path)
+  File "/root/.cache/pypoetry/virtualenvs/myapp-YbDNOynA-py3.7/lib/python3.7/site-packages/loguru/_ctime_functions.py", line 34, in get_ctime
+    return os.stat(filepath).st_mtime
+FileNotFoundError: [Errno 2] No such file or directory: '/var/log/myapp/app.log'
+--- End of logging error ---
+2023-05-06 13:41:36,406 INFO sqlalchemy.pool.impl.QueuePool Connection <sqlalchemy.dialects.mysql.aiomysql.AsyncAdapt_aiomysql_connection object at 0xb4b42f0c> exceeded timeout; recycling
