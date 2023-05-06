@@ -154,7 +154,7 @@ class BaseModel(Base, metaclass=ModelMeta):
         # 以ORM方式查询返回的结果是一个tuple组成的数组：[(object1, object2)]
         # 当前只有一个model的查询，所以直接取元组的第一个元素
         res = [r[0] for r in res]
-        return res, total_count if is_get_total_count else res
+        return (res, total_count) if is_get_total_count else res
 
     @classmethod
     async def async_first(cls, **kwargs):
