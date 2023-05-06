@@ -14,6 +14,7 @@ from myapp.base.code import ErrorCode
 from myapp.api import desktop
 from myapp.api import user
 from myapp.api import token
+from myapp.api import jjtest
 
 
 logger.configure(**log_configs)  # 配置loguru logger
@@ -59,6 +60,7 @@ app.mount("/static", StaticFiles(directory="myapp/static"), name="static")
 app.include_router(token.router)
 app.include_router(desktop.router)
 app.include_router(user.router)
+app.include_router(jjtest.router)
 
 
 if __name__ == '__main__':
