@@ -9,8 +9,8 @@ from myapp.schema.user import UserPatched as UserPatchedSchema
 from myapp.manager.user import UserManager
 from myapp.base.router import MyRouter
 from myapp.manager.token import verify_token
-
-router = MyRouter(prefix="/users", tags=["user"], dependencies=[Depends(verify_token)],
+# Depends(verify_token)
+router = MyRouter(prefix="/users", tags=["user"], dependencies=[],
                   responses={status.HTTP_401_UNAUTHORIZED: {"model": MyBaseSchema}})
 
 
@@ -40,6 +40,15 @@ async def get_user_detail(user_uuid: str):
     """
     manager = UserManager()
     user = await manager.get_user_by_uuid(user_uuid)
+    return MyBaseSchema[UserDetailSchema](data=user)
+
+@router.get("/auth/{user_uuid}", response_model=MyBaseSchema[UserDetailSchema])
+async def get_user_auth(user_uuid: str):
+    """
+    指定UUID查询用户权限.
+    """
+    manager = UserManager()
+    user = await manager.get_user_auth_by_uuid(user_uuid)
     return MyBaseSchema[UserDetailSchema](data=user)
 
 

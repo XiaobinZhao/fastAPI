@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 from pydantic import root_validator
 from myapp.base.schema import SchemaMetaclass
 from myapp.base.schema import EnabledEnum
+from myapp.base.schema import RoleEnum
+from myapp.base.schema import StatusEnum
 from myapp.base.schema import optional_but_cant_empty
 from myapp.models.user import User
 
@@ -13,9 +15,15 @@ class UserBase(BaseModel, metaclass=SchemaMetaclass):
     login_name: str = Field(max_length=64)
     email: str = Field(default="", max_length=255)
     phone: str = Field(default="", max_length=255)
+    company: str = Field(default="", max_length=255)
     enabled: EnabledEnum = Field(EnabledEnum.enabled)
     desc: Optional[str] = Field(default="", max_length=255)
-
+    role:RoleEnum = Field(RoleEnum.user)
+    status:StatusEnum = Field(StatusEnum.white)
+    auth_group: str = Field(default="", max_length=255)
+    auth_qa: str = Field(default="", max_length=255)
+    auth_admin: str = Field(default="", max_length=255)
+    auth_user: str = Field(default="", max_length=255)
     class Config:
         orm_mode = True
         orm_model = User

@@ -37,6 +37,14 @@ class PageSchema(GenericModel, Generic[ResponseData]):
 class EnabledEnum(str, Enum):
     enabled = "enabled"
     disabled = "disabled"
+    
+class RoleEnum(str, Enum):
+    admin = "admin"
+    user = "user"
+    
+class StatusEnum(str, Enum):
+    white = "white"
+    black = "black"
 
 
 def get_orm_model_recursive(current_attrs, current_bases):

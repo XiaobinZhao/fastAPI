@@ -2,6 +2,7 @@ import json
 from uuid import uuid4
 from loguru import logger
 from myapp.models.user import User as DB_User_Model
+from myapp.models.userauth import Userauth as DB_Userauth_Model
 from myapp.schema.user import UserCreate as UserCreateViewModel
 from myapp.exception.user import UserNotFountException
 from myapp.base.tools import crypt_context
@@ -29,6 +30,12 @@ class UserManager(object):
 
     async def get_user_by_uuid(self, user_uuid):
         user = await DB_User_Model.async_first(uuid=user_uuid)
+        if not user:
+            raise UserNotFountException(message="User %s not found." % user_uuid)
+        return user
+    
+    async def get_user_auth_by_uuid(self, user_uuid):
+        user = await DB_Userauth_Model.async_first(uuid=user_uuid)
         if not user:
             raise UserNotFountException(message="User %s not found." % user_uuid)
         return user
