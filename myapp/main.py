@@ -1,20 +1,21 @@
 import uvicorn
-from loguru import logger
-from fastapi import status
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi import status
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
+from loguru import logger
+
+from myapp import generate_i18n
+from myapp.api import desktop
+from myapp.api import token
+from myapp.api import user
 from myapp.base.cache import MyCache
-from myapp.openapi import custom_openapi
+from myapp.base.code import ErrorCode
+from myapp.base.response import MyBaseResponse
 from myapp.conf.config import settings
 from myapp.conf.loginit import config as log_configs
-from myapp.base.response import MyBaseResponse
-from myapp.base.code import ErrorCode
-from myapp.api import desktop
-from myapp.api import user
-from myapp.api import token
-
+from myapp.openapi import custom_openapi
 
 logger.configure(**log_configs)  # 配置loguru logger
 
@@ -24,6 +25,7 @@ custom_openapi(app)  # 设置自定义openAPI
 
 @app.on_event('startup')
 async def startup_event():
+    generate_i18n.main()
     await MyCache.init_cache_connect()
     logger.info("Redis cache connect success !")
 

@@ -9,45 +9,59 @@ class Code(object):
     code_type = "API"
     code_business = "000"  # 标识系统统一编号
     code_error = "0000"  # 标识未知错误
+    code_success = "9999"
 
 
 class ErrorCode(Code):
+    # 类型用于前端分辨错误信息类型
+    code_level = 'ERROR_'
+
     @classmethod
     def INTERNAL_ERROR(cls):
-        _code = cls.code_type + "_500_" + cls.code_business + "_0000"  # 未知错误
+        _code = cls.code_level + cls.code_type + "_500_" + cls.code_business + "_0000"  # 未知错误
         _zh = "未知系统错误"
         _en = "internal error"
         return {"code": _code, "zh": _zh, "en": _en}
 
     @classmethod
     def REQUEST_VALIDATE_ERROR(cls):
-        _code = cls.code_type + "_422_" + cls.code_business + "_0001"  # request参数校验失败
+        _code = cls.code_level + cls.code_type + "_422_" + cls.code_business + "_0001"  # request参数校验失败
         _zh = "request 请求参数校验失败，请检查参数格式"
         _en = "request validation error，please check your parameters"
         return {"code": _code, "zh": _zh, "en": _en}
 
     @classmethod
     def NOT_FOUND_ERROR(cls):
-        _code = cls.code_type + "_404_" + cls.code_business + "_0002"  # 资源不存在
+        _code = cls.code_level + cls.code_type + "_404_" + cls.code_business + "_0002"  # 资源不存在
         _zh = "请求的资源不存在"
         _en = "the request resource not exist"
         return {"code": _code, "zh": _zh, "en": _en}
 
     @classmethod
     def UNAUTHORIZED_ERROR(cls):
-        _code = cls.code_type + "_401_" + cls.code_business + "_0003"  # 没有提供正确的token
+        _code = cls.code_level + cls.code_type + "_401_" + cls.code_business + "_0003"  # 没有提供正确的token
         _zh = "认证失败, 请提供正确的登录名/密码或者token"
-        _en = "authentication failed, please check your login_name/password or token"
+        _en = "authentication failed, please check your account/password or token"
         return {"code": _code, "zh": _zh, "en": _en}
 
 
 class SuccessCode(Code):
+    code_level = 'SUCCESS_'
+
     def __init__(self):
-        self.SUCCESS = Code.code_type + "_200_" + self.code_business + "_9999"
+        self.SUCCESS = self.code_level + Code.code_type + "_000_" + self.code_business + f"_{self.code_success}"
 
     @classmethod
     def SUCCESS(cls):
-        _code = cls.code_type + "_200_" + cls.code_business + "_9999"
+        _code = cls.code_level + cls.code_type + "_000_" + cls.code_business + f"_{cls.code_success}"
         _zh = "成功"
         _en = "success"
         return {"code": _code, "zh": _zh, "en": _en}
+
+
+class WarningCode(Code):
+    code_level = 'WARNING_'
+
+
+class InfoCode(Code):
+    code_level = 'INFO_'
