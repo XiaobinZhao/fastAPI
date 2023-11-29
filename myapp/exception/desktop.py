@@ -1,6 +1,7 @@
 from fastapi import status
-from myapp.base.exception import MyBaseException
 from myapp.error_code.desktop import ErrorCode
+
+from myapp.base.exception import MyBaseException
 
 
 class DesktopNotFountException(MyBaseException):

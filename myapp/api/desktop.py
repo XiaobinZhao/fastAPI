@@ -1,7 +1,7 @@
 from typing import List
-from fastapi import status
+from fastapi import status, Query
 from fastapi import Depends
-from myapp.base.schema import MyBaseSchema, PageSchema
+from myapp.base.schema import MyBaseSchema, PageSchema, MyFilterQueryParam
 from myapp.base.router import MyRouter
 from myapp.schema.desktop import DesktopBase as DesktopBaseSchema
 from myapp.schema.desktop import DesktopDetail as DesktopDetailSchema
@@ -22,22 +22,27 @@ async def create_desktop(desktop: DesktopBaseSchema):
 
 
 @router.get("/", response_model=MyBaseSchema[List[DesktopDetailSchema]])
-async def list_desktops(skip: int = 0, limit: int = 100):
+async def list_desktops(search_key: str = "display_name", search_str: str = "",
+                        filters: MyFilterQueryParam = Query(default={},
+                                                            description="其他过滤条件，必须符合a=xx,b=xx的键值对格式")):
     """
     查询桌面列表.
     """
     manager = DesktopManager()
-    desktops = await manager.list_desktops(skip=skip, limit=limit)
+    desktops = await manager.list_desktops(search_key=search_key, search_str=search_str, filters=filters)
     return MyBaseSchema[List[DesktopDetailSchema]](data=desktops)
 
 
 @router.get("/page", response_model=MyBaseSchema[PageSchema[List[DesktopDetailSchema]]])
-async def page_desktops(skip: int = 0, limit: int = 10):
+async def page_desktops(search_key: str = "display_name", search_str: str = "",
+                        filters: MyFilterQueryParam = Query(default={}, description="其他过滤条件，必须符合a=xx,b=xx的键值对格式"),
+                        skip: int = 0, limit: int = 100):
     """
     查询桌面列表.
     """
     manager = DesktopManager()
-    page_data = await manager.page_desktops(skip=skip, limit=limit)
+    page_data = await manager.page_desktops(search_key=search_key, search_str=search_str, filters=filters,
+                                            skip=skip, limit=limit)
     return MyBaseSchema[PageSchema[List[DesktopDetailSchema]]](data=page_data)
 
 

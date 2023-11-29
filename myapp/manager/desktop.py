@@ -9,15 +9,21 @@ class DesktopManager(object):
     def __init__(self, *args, **keywords):
         super(DesktopManager, self).__init__(*args, **keywords)
 
-    async def list_desktops(self, skip: int = 0, limit: int = 100):
-        desktops = await DB_Desktop_Model.async_filter(limit=limit, offset=skip)
+    @staticmethod
+    async def list_desktops(search_key: str = "", search_str: str = "", filters=None):
+        desktops = await DB_Desktop_Model.async_filter(is_get_total_count=False, search_key=search_key,
+                                                       search_str=search_str, **filters)
         return desktops
 
-    async def page_desktops(self, skip: int = 0, limit: int = 100):
-        desktops, total_count = await DB_Desktop_Model.async_filter(is_get_total_count=True, limit=limit, offset=skip)
+    @staticmethod
+    async def page_desktops(search_key: str = "", search_str: str = "", filters=None, skip: int = 0, limit: int = 100):
+        desktops, total_count = await DB_Desktop_Model.async_filter(is_get_total_count=True, search_key=search_key,
+                                                                    search_str=search_str, offset=skip,
+                                                                    limit=limit, **filters)
         return PageSchema(total=total_count, limit=limit, skip=skip, data=desktops)
 
-    async def create_desktop(self, desktop: DesktopBaseViewModel):
+    @staticmethod
+    async def create_desktop(desktop: DesktopBaseViewModel):
         desktop = DB_Desktop_Model(**desktop.dict())
         desktop.uuid = uuid4().hex
         desktop.vm_uuid = uuid4().hex
@@ -26,21 +32,25 @@ class DesktopManager(object):
         desktop = await desktop.async_create()
         return desktop
 
-    async def get_desktop_by_uuid(self, desktop_uuid):
+    @staticmethod
+    async def get_desktop_by_uuid(desktop_uuid):
         desktop = DB_Desktop_Model(uuid=desktop_uuid)
         desktop = await desktop.async_first(uuid=desktop_uuid)
         if not desktop:
             raise DesktopNotFountException(message="Desktop %s not found." % desktop_uuid)
         return desktop
 
-    async def delete_desktop_by_uuid(self, desktop_uuid):
+    @staticmethod
+    async def delete_desktop_by_uuid(desktop_uuid):
         row_count = await DB_Desktop_Model.async_delete(uuid=desktop_uuid)
         if not row_count:
             raise DesktopNotFountException(message="Desktop %s not found." % desktop_uuid)
         return None
 
-    async def patch_desktop(self, desktop_uuid, patched_desktop):
-        row_count = await DB_Desktop_Model.async_update(uuid=desktop_uuid, **patched_desktop.dict(exclude_unset=True))
+    @staticmethod
+    async def patch_desktop(desktop_uuid, patched_desktop):
+        row_count = await DB_Desktop_Model.async_update_by_uuid(uuid=desktop_uuid,
+                                                                **patched_desktop.dict(exclude_unset=True))
         if not row_count:
             raise DesktopNotFountException(message="Desktop %s not found." % desktop_uuid)
         desktop = await DB_Desktop_Model.async_first(uuid=desktop_uuid)

@@ -7,6 +7,7 @@
 # 设置服务开机自启动
 systemctl daemon-reload
 systemctl enable myapp.service
+#systemctl restart nginx
 
 echo "postinst done"
 exit 0

@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 from pydantic import root_validator
+
+from myapp.base.constant import EnabledEnum
 from myapp.base.schema import SchemaMetaclass
-from myapp.base.schema import EnabledEnum
 from myapp.base.schema import optional_but_cant_empty
 from myapp.models.user import User
 

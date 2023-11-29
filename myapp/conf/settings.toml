@@ -5,11 +5,12 @@ log_level = "INFO"
 log_path = "@format /var/log/{this.PROJECT_NAME}/app.log"
 host = "0.0.0.0"
 port = 9099
+snowflake_datacenter_id = 0  # 雪花算法生成时的数据中心id,只支持0/1
 
 [db]
 user = "root"
 password = "mysql"
-aiomysql_url = "@format mysql+aiomysql://{this.DB.USER}:{this.DB.PASSWORD}@127.0.0.1:3306/{this.PROJECT_NAME}?charset=utf8"
+asyncmy = "@format mysql+asyncmy://{this.DB.USER}:{this.DB.PASSWORD}@127.0.0.1:3306/{this.PROJECT_NAME}?charset=utf8"
 pymysql_url = "@format mysql+pymysql://{this.DB.USER}:{this.DB.PASSWORD}@127.0.0.1:3306/{this.PROJECT_NAME}?charset=utf8"
 
 [redis]
@@ -18,3 +19,9 @@ host = "127.0.0.1"
 port = 6379
 password = "7a38d7c46ca4798c7767"
 url = "@format redis://:{this.REDIS.PASSWORD}@{this.REDIS.HOST}:{this.REDIS.PORT}/{this.REDIS.DBID}"
+
+[identity]
+token_ttl = 86400  # 单位秒，=60 * 60 * 24 * 1=1天
+aes_secret_key = "gg+dhZCOLh4GUAPEdnGTBFMJnWdGXl1mJ78XDMcBous="  # 32位长度 os.urandom(32),转为base64
+signature_tolerance = 300  # 单位秒
+signature_secret = "6d19d9b0d037f48baf1bb45e1c712c4817f15dd585aee6af431134bdab069457" # openssl rand -hex 32

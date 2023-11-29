@@ -1,3 +1,11 @@
+import random
+import string
+import pytz
+from datetime import datetime
+
+from myapp.base.constant import TIME_FORMAT
+
+
 def singleton(cls):
     import threading
 
@@ -13,7 +21,7 @@ def singleton(cls):
     return _singleton
 
 
-def get_base_classes_recursive(specified_class, base_class_result=[], stop_name="object"):
+def get_base_classes_recursive(specified_class, base_class_result=(), stop_name="object"):
     """
     递归查找指定class的基类，直到遇到预设的class name(默认object)
     :param specified_class: 指定的class
@@ -30,3 +38,22 @@ def get_base_classes_recursive(specified_class, base_class_result=[], stop_name=
             base_class_result.append(object)
             return base_class_result
     return get_base_classes_recursive(base, base_class_result, stop_name)
+
+
+def get_random_code(length, is_letter=False):
+    """
+    length 验证码位数
+    is_letter 是否加入大小写字母
+    """
+    letters = string.ascii_letters
+    digits = string.digits
+    character = digits
+    if is_letter:
+        character = letters + digits
+    return "".join([random.choice(character) for _ in range(length)])
+
+
+def format_utc_time(date_time: datetime):
+    utc_timezone = pytz.timezone('UTC')
+    utc_time = date_time.astimezone(utc_timezone)
+    return utc_time.strftime(TIME_FORMAT)

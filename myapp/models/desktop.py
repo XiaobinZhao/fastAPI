@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Column, Enum, String
-from myapp.base.db import BaseModel
+
+from myapp.base.db_async import BaseModel
 
 
 class Desktop(BaseModel):

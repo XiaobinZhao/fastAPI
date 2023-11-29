@@ -1,43 +1,202 @@
+# eojo-api
+
+EOJO website 后端
+
 python web framework base on FastAPI.
 
 - http://www.fastapipy.com/
 - https://fastapi.tiangolo.com/zh/
 
+# Python环境准备
+
+1. 可能本地缺少一些依赖，提前安装`apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev libjpeg-dev zlib1g-dev cronolog rsyslog logrotate`
+
+2. 下载Python源码： 任意目录执行`wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz` 支持3.7+； 3.9下载 `wget https://www.python.org/ftp/python/3.9.2/Python-3.9.2.tgz`
+
+3. 解压到当前文件夹下`tar -xf Python-3.10.12.tgz`
+
+4. 配置：cd到目录下执行，`./configure --enable-optimizations prefix=/usr/local/python310`
+
+    - --enable-optimizations 标志用于优化二进制文件并运行多个测试
+    - prefix设置了install的安装目录
+
+5. `make -j 4`
+
+    - 使用 -j 标志加快进程。这指定了系统中的内核数。`nproc`命令显示您的系统内核。
+
+6. `make install` 安装
+
+7. `/usr/local/python310/bin/python3 -V`验证安装
+
+8. 设置poetry使用Python的环境，参看下一章
+
+9. 修改pyproject.toml，设置Python版本
+
+   ```toml
+   [tool.poetry.dependencies]
+   python = "~3.10.12"
+   ```
+
+10. 执行`poetry install `下载安装依赖，并且启动项目
+
 # poetry管理包
+
 使用poetry管理python的包依赖和项目隔离。
 
 python和其他语言java/nodejs等一样，都需要进项项目级别的包管理，但是python会有些不同。
 
-1. python 与java/JavaScript等语言的project隔离是不一样的。python的项目依赖包都是统一安装到site-packages目录下，如果不同project依赖了不同版本的同一模块，那么后安装的会卸载掉先安装的。所以python需要为每一个项目进行单独隔离，所以virtualenv应运而生。
+1. python
+   与java/JavaScript等语言的project隔离是不一样的。python的项目依赖包都是统一安装到site-packages目录下，如果不同project依赖了不同版本的同一模块，那么后安装的会卸载掉先安装的。所以python需要为每一个项目进行单独隔离，所以virtualenv应运而生。
 2. 那么讨论python的依赖管理一般就指 依赖管理+虚拟环境。最初的工具就是pip+virtualenv，pip用来做包管理，virtualenv用来做虚拟环境。那么就带来问题：
-   1. 需要同时使用2个工具
-   2. 不能动态更新requirements.txt，这点尤其突出。这种文本格式的文件只能记录依赖包的名称，不能像yaml/json/xml一样记录更多的环境信息和参数。每次更新都是需要手动执行`pip freeze > requirements.txt`，如果那次遗漏，那么后患无穷。
+    1. 需要同时使用2个工具
+    2.
+    不能动态更新requirements.txt，这点尤其突出。这种文本格式的文件只能记录依赖包的名称，不能像yaml/json/xml一样记录更多的环境信息和参数。每次更新都是需要手动执行`pip freeze > requirements.txt`
+    ，如果那次遗漏，那么后患无穷。
 3. 因此，pipenv诞生了。
-4. pipenv可以看成是pip+virtualenv两款工具的合体，它集合了pip的依赖包管理和virtualenv虚拟环境 管理于一身。另外，在依赖包记录方面使用Pipfile替代原来的requirements.txt。而且，它能够自动记录并更新记录文件，这样就不在需要手动执行命令来更新requirements.txt。但是他依然有很多缺陷：
-   1. Lock速度缓慢
-   2. 强行更新不相干依赖
-   3. 依赖处理效果较差。
+4. pipenv可以看成是pip+virtualenv两款工具的合体，它集合了pip的依赖包管理和virtualenv虚拟环境
+   管理于一身。另外，在依赖包记录方面使用Pipfile替代原来的requirements.txt。而且，它能够自动记录并更新记录文件，这样就不在需要手动执行命令来更新requirements.txt。但是他依然有很多缺陷：
+    1. Lock速度缓慢
+    2. 强行更新不相干依赖
+    3. 依赖处理效果较差。
 5. `当当~当~当~~~`！Poetry出现了
-6. poetry是一款可以管理Python依赖、环境，同時可以用于Python工程打包和发布的一款第三方工具包。poetry通过配置文件pyproject.toml来完成依赖管理、环境配置、基本信息配置等功能。相当于把Python項目中的Pipfile、setup.py、setup.cfg、requirements.txt、MANIFEST.in融合到一起。通过pyproject.toml文件，不仅可以配置依赖包，还可以用于区分开发、测试、生产环境、配置源路径。
+6.
+poetry是一款可以管理Python依赖、环境，同時可以用于Python工程打包和发布的一款第三方工具包。poetry通过配置文件pyproject.toml来完成依赖管理、环境配置、基本信息配置等功能。相当于把Python項目中的Pipfile、setup.py、setup.cfg、requirements.txt、MANIFEST.in融合到一起。通过pyproject.toml文件，不仅可以配置依赖包，还可以用于区分开发、测试、生产环境、配置源路径。
 
-## poetry 安装
+## poetry安装
 
-poetry 安装会很慢（从github上拉取文件），建议手动下载poetry的[安装文件]([Releases · python-poetry/poetry (github.com)](https://github.com/python-poetry/poetry/releases))，可以到百度网盘下载（链接: https://pan.baidu.com/s/1Luy4GKYVRHiL9HnKZF_ZBg 提取码: hgac）。下载完成之后，使用`python3.7 get-poetry.py --file poetry-1.1.4-linux.tar.gz` 安装。
+### 官方脚本安装
+
+1. `curl -sSL https://install.python-poetry.org | python3 -`
+   这里的Python3可以替换为我们自己的Python命名，比如` curl -sSL https://install.python-poetry.org | /usr/local/python310/bin/python3 -`
+   如此安装完成之后，poetry会使用你提供的Python来运行poetry
+2. 根据安装输出，修改bashrc或者profile，增加`export PATH="/root/.local/bin:$PATH"`
+3. 验证poetry `poetry -V`
+3. 卸载： ` curl -sSL https://install.python-poetry.org | python3 - --uninstall`
+
+### pip安装
+
+```shell
+# $VENV_PATH 就是Python虚拟环境的路径，比如 /opt/pyenv/eojo
+python3 -m venv $VENV_PATH
+$VENV_PATH/bin/pip install -U pip setuptools
+$VENV_PATH/bin/pip install poetry
+---------------
+python3 -m venv /opt/pyenv/eojo
+/opt/pyenv/eojo/bin/pip install -U pip setuptools
+/opt/pyenv/eojo/bin/pip install poetry
+```
+
+- 卸载poetry直接删除`$VENV_PATH`即可
+- 记得修改PATH, 这样就可以直接访问 poetry
+
+## poetry 自动补全
+
+> poetry completions bash > /etc/bash_completion.d/poetry.bash-completion
+
+执行以上命令，然后关闭session再次进去linux bash即可发现poetry 可以使用自动补全
+
+## poetry使用
+
+#### 常规用法
 
 - `poetry init` 生成项目配置文件pyproject.toml
-- 如果是空的项目，可以使用`poetry create <project_name>`开始
-- poetry最低使用python3.7版本
-- `poetry add xxxx`，为项目添加依赖包。添加依赖会自动创建virtual env。如果不添加依赖，直接使用env，那么执行`poetry env use <python3.7路径>`，可以使用`whereis python`查询到python3.7的路径
-- 得到虚拟环境之后，可以执行`poetry intstall` 安装依赖。
+
+- 如果是空的项目，可以使用`poetry new <project_name>`开始
+
+- poetry最低使用python3.7版本,但是目前poetry1.6.1版本需要3.8+
+
+- `poetry add xxxx`，为项目添加依赖包。添加依赖会自动创建virtual env。
+
+- `poetry remove pendulum`,该`remove`命令从当前已安装软件包列表中删除软件包。
+
+- `poetry intstall` 命令从当前项目中读取`pyproject.toml`文件，解析依赖项并安装它们。如果当前目录中有`poetry.lock`
+  文件，它将使用那里的确切版本而不是解析它们。这可以确保使用该库的每个人都将获得相同版本的依赖项。如果没有`poetry.lock`
+  文件，Poetry 会在依赖解析后创建一个文件。如果要在安装中排除一个或多个依赖项组，可以使用该`--without`选项。
+
+  `poetry install --without test,docs`
+
+- `poetry update` 获取最新版本的依赖项并更新`poetry.lock`文件
+
 - `poetry show -t`可以查看当前环境安装的依赖，并且显示依赖关系
 
-注意
+- `poetry shell` 该`shell`命令根据`$SHELL`环境变量在虚拟环境中生成一个 shell。如果尚不存在，则会创建它。可以使用`deactive`
+  来退出虚拟环境
 
-> 项目使用的是poetry 1.1.4版本；
+- `poetry env info` 获取当前激活的虚拟环境的基本信息
 
-> 当前的最新版本已经到了1.4.2， 这个版本的安装文件poetry.tar.gz 已经很小，只有1M多，可以尝试新版本
+- `poetry config --list`该`config`命令允许您编辑poetry的配置设置和存储库。
 
-> 当前项目使用的python版本是3.7
+  ```
+  (demo-py3.10) root@xview:~/workspace/demo# poetry config --list
+  cache-dir = "/root/.cache/pypoetry"
+  experimental.system-git-client = false
+  installer.max-workers = null
+  installer.modern-installation = true
+  installer.no-binary = null
+  installer.parallel = true
+  virtualenvs.create = true
+  virtualenvs.in-project = null
+  virtualenvs.options.always-copy = false
+  virtualenvs.options.no-pip = false
+  virtualenvs.options.no-setuptools = false
+  virtualenvs.options.system-site-packages = false
+  virtualenvs.path = "{cache-dir}/virtualenvs"  # /root/.cache/pypoetry/virtualenvs
+  virtualenvs.prefer-active-python = false
+  virtualenvs.prompt = "{project_name}-py{python_version}"
+  ```
+
+#### 其他用法
+
+1. `--verbose (-v|vv|vvv)`：增加消息的详细程度：“-v”用于正常输出，“-vv”用于更详细的输出，“-vvv”用于调试。
+
+2. `--help (-h)`：显示帮助信息。
+
+3. `poetry source add --priority=default aliyun https://mirrors.aliyun.com/pypi/simple/`
+   添加阿里云的pypi源为默认源；优先去阿里云查找包，找不到时去隐式内置源https://pypi.org/ 找； 此命令也会自动添加配置项到pyproject.toml
+
+   ```toml
+   [[tool.poetry.source]]
+   name = "aliyun"
+   url = "https://mirrors.aliyun.com/pypi/simple"
+   priority = "default"
+   ```
+
+   但是为了更清晰表示源的优先级，把pypi隐式内置源也添加到配置文件，
+
+   ```toml
+   [[tool.poetry.source]]
+   name = "aliyun"
+   url = "https://mirrors.aliyun.com/pypi/simple"
+   priority = "default"
+   
+   
+   [[tool.poetry.source]]
+   name = "PyPI"
+   priority = "primary"
+   ```
+
+   poetry查找包时的顺序是：
+
+    1. [default source](https://python-poetry.org/docs/repositories/#default-package-source), 默认来源，
+    2. primary sources, 主要资源，
+    3. implicit PyPI (unless disabled by
+       another [default source](https://python-poetry.org/docs/repositories/#default-package-source) or configured
+       explicitly),
+       隐式 PyPI（除非被另一个默认源禁用或显式配置），
+    4. [secondary sources](https://python-poetry.org/docs/repositories/#secondary-package-sources) (DEPRECATED),
+       二手来源（已弃用），
+    5. [supplemental sources](https://python-poetry.org/docs/repositories/#supplemental-package-sources). 补充来源。
+
+4. 切换Python环境`poetry env use /full/path/to/python`
+
+## poetry低版本使用
+
+> 低版本poetry（如1.1.4）
+> 安装会很慢（从github上拉取文件），建议手动下载poetry的[安装文件]([Releases · python-poetry/poetry (github.com)](https://github.com/python-poetry/poetry/releases))
+> ，可以到百度网盘下载（链接: https://pan.baidu.com/s/1Luy4GKYVRHiL9HnKZF_ZBg 提取码:
+> hgac）。下载完成之后，使用`python3.7 get-poetry.py --file poetry-1.1.4-linux.tar.gz` 安装。
+
+> 当前的最新版本已经到了1.6.1， 这个版本的安装很快，基本上不需要手动下载github包
 
 > 最好在 ~/.pip/pip.conf配置好国内pip源
 >
@@ -47,14 +206,14 @@ poetry 安装会很慢（从github上拉取文件），建议手动下载poetry�
 > trusted-host = mirrors.aliyun.com
 > ```
 
-## poetry使用实践
-
 ### 指定python版本
 
-如果当前环境存在多个python版本，比如python2.7/python3.5/python3.8 3个python环境，那么poetry 引用的python版本可能并不是你期望的,比如运行poetry命令出现：
+如果当前环境存在多个python版本，比如python2.7/python3.5/python3.8 3个python环境，那么poetry
+引用的python版本可能并不是你期望的,比如运行poetry命令出现：
 
-> /root/.poetry/lib/poetry/_vendor/py2.7/subprocess32.py:149: RuntimeWarning: The _posixsubprocess module is not being used. Child process reliability may suffer if your program uses threads.
->   "program uses threads.", RuntimeWarning)
+> /root/.poetry/lib/poetry/_vendor/py2.7/subprocess32.py:149: RuntimeWarning: The _posixsubprocess module is not being
+> used. Child process reliability may suffer if your program uses threads.
+> "program uses threads.", RuntimeWarning)
 >
 > Python 2.7 will no longer be supported in the next feature release of Poetry (1.2).
 > You should consider updating your Python version to a supported one.
@@ -62,7 +221,8 @@ poetry 安装会很慢（从github上拉取文件），建议手动下载poetry�
 > Note that you will still be able to manage Python 2.7 projects by using the env command.
 > See https://python-poetry.org/docs/managing-environments/ for more information.
 
-可以使用以下步骤指定，参看`https://github.com/python-poetry/poetry/issues/655#issuecomment-532608560`,官网建议使用pyenv来做python多版本控制，具体可以参看：` https://python-poetry.org/docs/managing-environments/ `：
+可以使用以下步骤指定，参看`https://github.com/python-poetry/poetry/issues/655#issuecomment-532608560`,官网建议使用pyenv来做python多版本控制，具体可以参看：` https://python-poetry.org/docs/managing-environments/ `
+：
 
 - 查看当前多个python版本的入口，可以使用type、whereis等命令，比如：
 
@@ -83,13 +243,14 @@ poetry 安装会很慢（从github上拉取文件），建议手动下载poetry�
 
 - 修改`~/.poetry/bin/poetry`第一行
 
-  >  #!/usr/bin/env python ---> 改为  #!/usr/bin/env python3.8
+  > #!/usr/bin/env python ---> 改为 #!/usr/bin/env python3.8
 
 - 执行poetry命令，则不再出现python2.7的告警
 
 ### poetry 指定pypi源
 
-使用poetry的另一个问题是大陆访问pypi速度太慢,在使用pip时,我们可以通过添加源来解决,尽管poetry也可以使用pip的镜像源下载,然而在分析包之间的依赖关系时似乎依然是走的pypi,要解决这个问题,我们可以在每个项目下的pyproject.toml文件内写入配置文件,比如使用ali 源。
+使用poetry的另一个问题是大陆访问pypi速度太慢,在使用pip时,我们可以通过添加源来解决,尽管poetry也可以使用pip的镜像源下载,然而在分析包之间的依赖关系时似乎依然是走的pypi,要解决这个问题,我们可以在每个项目下的pyproject.toml文件内写入配置文件,比如使用ali
+源。
 
 ```
 [[tool.poetry.source]]
@@ -105,35 +266,35 @@ python项目的配置文件有多种，比如
 
 - python自带xxx.py文件作为配置文件，比如 Django、flask的setting.py
 - 外部的配置文件，通常使用`configparser`库来解析
-  - json：在js项目中可能比较常用
-  - xml: 其可读性和写法都比较繁琐，基本弃用
-  - yaml: 利用空格来定义变量层次结构，更易读；建议使用[Python _Confuse_库](https://github.com/sampsyo/confuse)来解析yaml
-  - ini: **ini**文件非常适合较小的项目，但是这些文件仅支持1级深的层次结构
-  - conf: 
-    - conf其实没有一个固定的标准，比如mysql的配置文件my.cnf其实就是一个ini文件；conf可以是一个ini文件或者其应用能识别的更丰富格式的文件
-    - 跟ini一样有些限制
-  - toml: 
-    - 明确的value类型，不再需要类似`getboolean()`这样测操作才可以获取正确的Value；
-    - 支持更丰富的数据类型：**DateTime**，**本地时间**，**数组**，**float**甚至**十六进制值**
-    - TOML文件中带括号的部分称为**表**，TOML支持**“嵌套表”**的概念
+    - json：在js项目中可能比较常用
+    - xml: 其可读性和写法都比较繁琐，基本弃用
+    - yaml: 利用空格来定义变量层次结构，更易读；建议使用[Python _Confuse_库](https://github.com/sampsyo/confuse)来解析yaml
+    - ini: **ini**文件非常适合较小的项目，但是这些文件仅支持1级深的层次结构
+    - conf:
+        - conf其实没有一个固定的标准，比如mysql的配置文件my.cnf其实就是一个ini文件；conf可以是一个ini文件或者其应用能识别的更丰富格式的文件
+        - 跟ini一样有些限制
+    - toml:
+        - 明确的value类型，不再需要类似`getboolean()`这样测操作才可以获取正确的Value；
+        - 支持更丰富的数据类型：**DateTime**，**本地时间**，**数组**，**float**甚至**十六进制值**
+        - TOML文件中带括号的部分称为**表**，TOML支持**“嵌套表”**的概念
 - 数据库存储配置项
-  - mysql
-  - redis
+    - mysql
+    - redis
 
 以上方案推荐ini/python/toml。
 
 - python文件：
-  - 优点：使用简单，配置文件作为一个python的model被import；可以直接在配置文件内使用python的一些语法
-  - 缺点：不符合标准项目构建流程，比如linux平台一般配置文件位于/etc目录下
-  - 适合项目规模：小型
+    - 优点：使用简单，配置文件作为一个python的model被import；可以直接在配置文件内使用python的一些语法
+    - 缺点：不符合标准项目构建流程，比如linux平台一般配置文件位于/etc目录下
+    - 适合项目规模：小型
 - conf/ini文件
-  - 优点：简单
-  - 缺点：只支持一级层次；
-  - 适合项目规模：小型
+    - 优点：简单
+    - 缺点：只支持一级层次；
+    - 适合项目规模：小型
 - toml
-  - 优点：更丰富的数据类型支持和更多项目元数据配置
-  - 缺点：需要支持parse
-  - 适合项目规模：全面
+    - 优点：更丰富的数据类型支持和更多项目元数据配置
+    - 缺点：需要支持parse
+    - 适合项目规模：全面
 
 **结论：小型项目建议采用conf/ini类型，略复杂项目建议采用toml**。
 
@@ -143,35 +304,35 @@ python项目的配置文件有多种，比如
 
 - python 内置 configparser
 
-  - 可以解析conf、ini文件；写入新的配置
+    - 可以解析conf、ini文件；写入新的配置
 
 - openstack社区出品oslo.config
 
-  - 解析conf文件；写入新的配置
+    - 解析conf文件；写入新的配置
 
-  - 支持环境变量
+    - 支持环境变量
 
-  - 支持command-line
+    - 支持command-line
 
-  - 支持变量引用，比如
+    - 支持变量引用，比如
 
-    ```ini
-    # (string value)
-    rabbit_host = controller
-    
-    # (integer value)
-    rabbit_port = 5672
-    
-    rabbit_hosts = $rabbit_host:$rabbit_port
-    ```
-  
+      ```ini
+      # (string value)
+      rabbit_host = controller
+      
+      # (integer value)
+      rabbit_port = 5672
+      
+      rabbit_hosts = $rabbit_host:$rabbit_port
+      ```
+
 - [dynaconf](https://github.com/rochacbruno/dynaconf)
 
-  - 解析多种格式`toml|yaml|json|ini|py`文件；写入配置；默认值；校验
-  - 支持环境变量
-  - 支持多中开发环境（default, development, testing, production）
-  - 内置 **Django** and **Flask** 相关支持
-  - 支持cli命令
+    - 解析多种格式`toml|yaml|json|ini|py`文件；写入配置；默认值；校验
+    - 支持环境变量
+    - 支持多中开发环境（default, development, testing, production）
+    - 内置 **Django** and **Flask** 相关支持
+    - 支持cli命令
 
 **结论：推荐使用dynaconf+toml,一步到位**。
 
@@ -181,11 +342,12 @@ python项目的配置文件有多种，比如
 
 2. 在项目应用目录下运行`dynaconf init`,默认生成3个文件
 
-   1. `config.py` 必选文件，我们的应用通过import config来使用配置项
-   2.  `.secrets.toml` 可选文件，可以存放一些敏感数据，比如密码、私钥和token等
-   3.  `settings.toml `可选文件，配置项文件。一般我们把配置项放到这个文件。dynaconf支持toml|yaml|json|ini(conf)|py等多种格式，建议采用toml。文件格式选型，建议查看上一节。
+    1. `config.py` 必选文件，我们的应用通过import config来使用配置项
+    2. `.secrets.toml` 可选文件，可以存放一些敏感数据，比如密码、私钥和token等
+    3. `settings.toml `可选文件，配置项文件。一般我们把配置项放到这个文件。dynaconf支持toml|yaml|json|ini(conf)
+       |py等多种格式，建议采用toml。文件格式选型，建议查看上一节。
 
-3. 项目引入settings. 
+3. 项目引入settings.
 
    ```python
    from dynaconf import Dynaconf
@@ -198,18 +360,21 @@ python项目的配置文件有多种，比如
 
    以上是默认生成的config.py. 这里的配置项settings_files指向的`settings.toml`文件是相对于当前执行应用的时候的目录，原文解释如下：
 
-   In the above example, dynaconf will try to load `settings.toml` from the same directory where the program is located, also known as `.` and then will keep traversing the folders in backwards order until the root is located.
+   In the above example, dynaconf will try to load `settings.toml` from the same directory where the program is located,
+   also known as `.` and then will keep traversing the folders in backwards order until the root is located.
 
    root is either the path where the program was invoked, or the O.S root or the root specified in `root_path`.
 
-   由于是一个相对于**程序执行时**所在的当前目录为查找起始路径，有时候会发现`settings.toml`可能load会出现文件无法正确匹配，导致配置项找不到。所以为了一定可以找到配置项，建议在`settings.toml`后添加一个绝对路径作为备选。当然按照settings_files配置项内容顺序，后边的配置项会覆盖前边的。以下是本程序的示例设置：
+   由于是一个相对于**程序执行时**所在的当前目录为查找起始路径，有时候会发现`settings.toml`
+   可能load会出现文件无法正确匹配，导致配置项找不到。所以为了一定可以找到配置项，建议在`settings.toml`
+   后添加一个绝对路径作为备选。当然按照settings_files配置项内容顺序，后边的配置项会覆盖前边的。以下是本程序的示例设置：
 
    ```python
    from dynaconf import Dynaconf
    
    settings = Dynaconf(
        envvar_prefix="DYNACONF",
-       settings_files=['./myapp/conf/settings.toml', '/etc/myapp/settings.toml'],
+       settings_files=['./eojo/conf/settings.toml', '/etc/eojo/settings.toml'],
    )
    ```
 
@@ -225,37 +390,57 @@ python项目的配置文件有多种，比如
    db_path = "@format {env[HOME]}/{this.current_env}/{env[PROGRAM_NAME]}/{this.DB_NAME}"
    ```
 
-   dynaconf支持 `@format` and `@jinja`2种方式进行字符串替换。jinja需要单独安装依赖包，format内置，相当于python的`str.format`。但是验证下来发现，替换字符串时，必须使用对应配置项的**大写**，如上例。
+   dynaconf支持 `@format` and `@jinja`
+   2种方式进行字符串替换。jinja需要单独安装依赖包，format内置，相当于python的`str.format`
+   。但是验证下来发现，替换字符串时，必须使用对应配置项的**大写**，如上例。
 
 # loguru管理日志
 
-在 Python 中，一般情况下我们可能直接用自带的 logging 模块来记录日志，包括我之前的时候也是一样。在使用时我们需要配置一些 Handler、Formatter 来进行一些处理，比如把日志输出到不同的位置，或者设置一个不同的输出格式，或者设置日志分块和备份，感觉显得略微繁琐一些。
+在 Python 中，一般情况下我们可能直接用自带的 logging 模块来记录日志，包括我之前的时候也是一样。在使用时我们需要配置一些
+Handler、Formatter 来进行一些处理，比如把日志输出到不同的位置，或者设置一个不同的输出格式，或者设置日志分块和备份，感觉显得略微繁琐一些。
 
 ## loguru
 
 使用[loguru](https://loguru.readthedocs.io/)可以更方便的管理log, loguru有如下feature:
 
-- [Ready to use out of the box without boilerplate](https://loguru.readthedocs.io/en/stable/overview.html#ready-to-use-out-of-the-box-without-boilerplate)  开箱即用，无需配置
-- [No Handler, no Formatter, no Filter: one function to rule them all](https://loguru.readthedocs.io/en/stable/overview.html#no-handler-no-formatter-no-filter-one-function-to-rule-them-all) 不需要handler/formatter/filter/function配置，add实现一切
-- [Easier file logging with rotation / retention / compression](https://loguru.readthedocs.io/en/stable/overview.html#easier-file-logging-with-rotation-retention-compression) 支持 rotation/retention/压缩
-- [Modern string formatting using braces style](https://loguru.readthedocs.io/en/stable/overview.html#modern-string-formatting-using-braces-style) 使用`{}`做字符串替换占位符
-- [Exceptions catching within threads or main](https://loguru.readthedocs.io/en/stable/overview.html#exceptions-catching-within-threads-or-main) 捕获程序崩溃和线程内的异常堆栈
-- [Pretty logging with colors](https://loguru.readthedocs.io/en/stable/overview.html#pretty-logging-with-colors)  使用 [markup tags](https://loguru.readthedocs.io/en/stable/api/logger.html#color) 支持带颜色显示的logger message
-- [Asynchronous, Thread-safe, Multiprocess-safe](https://loguru.readthedocs.io/en/stable/overview.html#asynchronous-thread-safe-multiprocess-safe) 支持异步、线程安全、多进程安全
-- [Fully descriptive exceptions](https://loguru.readthedocs.io/en/stable/overview.html#fully-descriptive-exceptions) 更完整的异常堆栈信息（小心暴露你的敏感信息哦）
-- [Structured logging as needed](https://loguru.readthedocs.io/en/stable/overview.html#structured-logging-as-needed) 支持json序列化异常对象
-- [Lazy evaluation of expensive functions](https://loguru.readthedocs.io/en/stable/overview.html#lazy-evaluation-of-expensive-functions) 延迟赋值
+- [Ready to use out of the box without boilerplate](https://loguru.readthedocs.io/en/stable/overview.html#ready-to-use-out-of-the-box-without-boilerplate)
+  开箱即用，无需配置
+- [No Handler, no Formatter, no Filter: one function to rule them all](https://loguru.readthedocs.io/en/stable/overview.html#no-handler-no-formatter-no-filter-one-function-to-rule-them-all)
+  不需要handler/formatter/filter/function配置，add实现一切
+- [Easier file logging with rotation / retention / compression](https://loguru.readthedocs.io/en/stable/overview.html#easier-file-logging-with-rotation-retention-compression)
+  支持 rotation/retention/压缩
+- [Modern string formatting using braces style](https://loguru.readthedocs.io/en/stable/overview.html#modern-string-formatting-using-braces-style)
+  使用`{}`做字符串替换占位符
+- [Exceptions catching within threads or main](https://loguru.readthedocs.io/en/stable/overview.html#exceptions-catching-within-threads-or-main)
+  捕获程序崩溃和线程内的异常堆栈
+- [Pretty logging with colors](https://loguru.readthedocs.io/en/stable/overview.html#pretty-logging-with-colors)
+  使用 [markup tags](https://loguru.readthedocs.io/en/stable/api/logger.html#color) 支持带颜色显示的logger message
+- [Asynchronous, Thread-safe, Multiprocess-safe](https://loguru.readthedocs.io/en/stable/overview.html#asynchronous-thread-safe-multiprocess-safe)
+  支持异步、线程安全、多进程安全
+- [Fully descriptive exceptions](https://loguru.readthedocs.io/en/stable/overview.html#fully-descriptive-exceptions)
+  更完整的异常堆栈信息（小心暴露你的敏感信息哦）
+- [Structured logging as needed](https://loguru.readthedocs.io/en/stable/overview.html#structured-logging-as-needed)
+  支持json序列化异常对象
+- [Lazy evaluation of expensive functions](https://loguru.readthedocs.io/en/stable/overview.html#lazy-evaluation-of-expensive-functions)
+  延迟赋值
 - [Customizable levels](https://loguru.readthedocs.io/en/stable/overview.html#customizable-levels) 支持自定义level
 - [Better datetime handling](https://loguru.readthedocs.io/en/stable/overview.html#better-datetime-handling) 更加方便的时间格式设置
-- [Suitable for scripts and libraries](https://loguru.readthedocs.io/en/stable/overview.html#suitable-for-scripts-and-libraries) 脚本和第三方库更方便的使用logger
-- [Entirely compatible with standard logging](https://loguru.readthedocs.io/en/stable/overview.html#entirely-compatible-with-standard-logging) 兼容标准库的logging
-- [Personalizable defaults through environment variables](https://loguru.readthedocs.io/en/stable/overview.html#personalizable-defaults-through-en vironment-variables) 通过环境变量来设置个性化参数
-- [Convenient parser](https://loguru.readthedocs.io/en/stable/overview.html#convenient-parser) [`parse()`](https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.parse)方法可以方便的解析log日志内容
-- [Exhaustive notifier](https://loguru.readthedocs.io/en/stable/overview.html#exhaustive-notifier) 使用[`notifiers`](https://github.com/notifiers/notifiers)组件可以方便的结合loguru实现邮件等方式进行消息通知
+- [Suitable for scripts and libraries](https://loguru.readthedocs.io/en/stable/overview.html#suitable-for-scripts-and-libraries)
+  脚本和第三方库更方便的使用logger
+- [Entirely compatible with standard logging](https://loguru.readthedocs.io/en/stable/overview.html#entirely-compatible-with-standard-logging)
+  兼容标准库的logging
+- [Personalizable defaults through environment variables](https://loguru.readthedocs.io/en/stable/overview.html#personalizable-defaults-through-en
+  vironment-variables) 通过环境变量来设置个性化参数
+- [Convenient parser](https://loguru.readthedocs.io/en/stable/overview.html#convenient-parser) [`parse()`](https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.parse)
+  方法可以方便的解析log日志内容
+- [Exhaustive notifier](https://loguru.readthedocs.io/en/stable/overview.html#exhaustive-notifier)
+  使用[`notifiers`](https://github.com/notifiers/notifiers)组件可以方便的结合loguru实现邮件等方式进行消息通知
 
 # OpenAPI
 
-Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成了自动化实现文档的功能，主要的技术实现是基于pydantic进行数据模型等接口定义，然后生成swagger JSON定义文档，结合 [Swagger UI](https://github.com/swagger-api/swagger-ui) 即可得到自动生成的交互式 API 文档，另外还支持 [ReDoc](https://github.com/Rebilly/ReDoc)格式的。
+Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成了自动化实现文档的功能，主要的技术实现是基于pydantic进行数据模型等接口定义，然后生成swagger
+JSON定义文档，结合 [Swagger UI](https://github.com/swagger-api/swagger-ui) 即可得到自动生成的交互式 API
+文档，另外还支持 [ReDoc](https://github.com/Rebilly/ReDoc)格式的。
 
 - **Python 3.6 及更高版本**
 - 数据校验
@@ -269,14 +454,15 @@ Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成�
 
    有2个字段可以作为描述字段：
 
-   1. doc：只是在python侧做文档描述，不进入DB
-   2. comment: 创建表时，会把该字段写入SQL
+    1. doc：只是在python侧做文档描述，不进入DB
+    2. comment: 创建表时，会把该字段写入SQL
 
    可以知道我们使用comment会更合适
 
 2. pydantic的schema model 每个字段都有description字段，最后会生成在线文档的字段描述字段。那么是否可以只写一次该描述文字，就可以在DB和schema都可以看到呢？研究发现，还是自己实现吧。
 
-   通过查看FastAPI的源码，可以知道在FastAPI实例初始化时就会进行schema model的解析并且生成openapi.json文件。所以普通的继承和重写是不能实现的，python有一神器：metaclass。
+   通过查看FastAPI的源码，可以知道在FastAPI实例初始化时就会进行schema
+   model的解析并且生成openapi.json文件。所以普通的继承和重写是不能实现的，python有一神器：metaclass。
 
    ```
    MetaClass元类，本质也是一个类，但和普通类的用法不同，它可以对类内部的定义（包括类属性和类方法）进行动态的修改。可以这么说，使用元类的主要目的就是为了实现在创建类时，能够动态地改变类中定义的属性或者方法。
@@ -284,12 +470,13 @@ Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成�
 
    自定义SchemaMetaclass,实现对schema model 类创建时，把db model的comment字段的value设置到 schema model的description字段。
 
-   1. schema model必须添加参数，可以知道从那个 DB model查找comment。这里使用 Config.orm_model属性
-   2. 有可能schema model存在继承关系，所以查找需要递归查找Config.orm_model属性
-   3. scheme model的所有字段的定义需要设置Filed()定义
-   4. 之后可以继续优化，比如自动设置默认值和字符串最长（max_length）
+    1. schema model必须添加参数，可以知道从那个 DB model查找comment。这里使用 Config.orm_model属性
+    2. 有可能schema model存在继承关系，所以查找需要递归查找Config.orm_model属性
+    3. scheme model的所有字段的定义需要设置Filed()定义
+    4. 之后可以继续优化，比如自动设置默认值和字符串最长（max_length）
 
 ## OpenAPI在线文档管理
+
 定制openAPI 文档。
 
 - 抽出OpenAPI文档全局设置参数
@@ -302,13 +489,13 @@ Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成�
   # main.py
   from fastapi import FastAPI
   from fastapi.staticfiles import StaticFiles
-  from myapp.openapi import custom_openapi
+  from eojo.openapi import custom_openapi
   
   
   app = FastAPI(docs_url=None, redoc_url=None)  # docs url 重新定义
   custom_openapi(app)  # 设置自定义openAPI
   
-  app.mount("/static", StaticFiles(directory="myapp/static"), name="static")
+  app.mount("/static", StaticFiles(directory="eojo/static"), name="static")
   ```
 
   ```python
@@ -377,16 +564,17 @@ Restfull web服务，其API文档是一个重要的组成部分。FastAPI集成�
           )
   ```
 
-
 # alembic 管理数据库版本
+
 alembic 是一个做数据库版本管理的工具。
- 1. 配置文件位于: {PROJECT_NAME}/db/migrations/alembic.ini 会自动获取配置文件里关于db的设置
- 2. 配置项主要为：`sqlalchemy.url = mysql+pymysql://xview:xview@localhost:3306/xview?charset=utf8`
- 3. 生成增量版本: `alembic revision --autogenerate -m "2.0.3"' # 2.0.3 是message，标记本次升级的描述
- 4. 升级到最新版本: `alembic upgrade head'  
- 5. 升级到 下一个 版本: `alembic upgrade +1`
- 6. 打印升级到最新版本的 SQL 脚本: `alembic upgrade head --sql` 
- 7. 降级到 前一个 版本: `alembic downgrade -1`
+
+1. 配置文件位于: {PROJECT_NAME}/db/migrations/alembic.ini 会自动获取配置文件里关于db的设置
+2. 配置项主要为：`sqlalchemy.url = mysql+pymysql://xview:xview@localhost:3306/xview?charset=utf8`
+3. 生成增量版本: `alembic revision --autogenerate -m "2.0.3"' # 2.0.3 是message，标记本次升级的描述
+4. 升级到最新版本: `alembic upgrade head'
+5. 升级到 下一个 版本: `alembic upgrade +1`
+6. 打印升级到最新版本的 SQL 脚本: `alembic upgrade head --sql`
+7. 降级到 前一个 版本: `alembic downgrade -1`
 
 ## 设置 db url
 
@@ -403,13 +591,14 @@ def run_migrations_online():
 
 ```
 
-# 框架定制 
+# 框架定制
 
 ## 逻辑分层
 
 架构设计的本质是：降本增效。分层可以进行一定程度的逻辑隔离，各司其职，简化开发流程，便于维护，实现降本增效。
 
-1. schema（资源）层：本层在java等体系中称之为VO（View Object），用于展示层，作用是把前端展示的数据进行封装。在这里，我称之为视图层或者资源层。这一层会把API的response的数据结构进行控制。因为python是弱类型语言，response可以随意修改其数据结构，所以定义一个数据结构进行显示控制，很有必要。
+1. schema（资源）层：本层在java等体系中称之为VO（View
+   Object），用于展示层，作用是把前端展示的数据进行封装。在这里，我称之为视图层或者资源层。这一层会把API的response的数据结构进行控制。因为python是弱类型语言，response可以随意修改其数据结构，所以定义一个数据结构进行显示控制，很有必要。
 
    资源是RestFul风格的API强调的一个概念。这个资源应该是针对业务进行的抽象对象，与数据库设计的表可能是一一对应，也可能是1个资源对应多个表。比如一个学生资源，可能会包含学生的基本信息（姓名、性别、年龄等）和课程信息（科目、分数等）；学生信息和课程信息在数据库会是2个表，但是在资源上是一个。
 
@@ -419,7 +608,8 @@ def run_migrations_online():
 
    本层的实现技术基于pydantic。
 
-2. API层：处理入参和出参校验。进行入/出参的参数校验，包括必填（选填）参数、参数类型（数字、字符串、枚举等）、参数限制（长度、大小氛围、正则等）等；以及url的设置，http method，http response code等。
+2. API层：处理入参和出参校验。进行入/出参的参数校验，包括必填（选填）参数、参数类型（数字、字符串、枚举等）、参数限制（长度、大小氛围、正则等）等；以及url的设置，http
+   method，http response code等。
 
    这一层还可以有一些中间件或者说是拦截器等的组件来进行一些请求前或者请求后的操作，比如：请求前的token校验、权限校验等；请求后的异常处理和消息通知等
 
@@ -429,11 +619,11 @@ def run_migrations_online():
 
 3. 业务层：经过API层过滤之后，进入业务层的数据一定是符合预期的，规范的；这样可以进行相应的业务处理，比如一个订单请求，在这一层可能涉及到的有订单数据生成、减库存、购物车数据变动等等。
 
-   1. 得到的数据是符合预期的，规范的
-   2. 业务层应该专注于业务处理，不必关注数据怎么入库
-   3. 业务层需要暴露一些接口给其他业务层调用
-   4. 不同的业务模块应该且最好只能通过业务层的接口进行互相import和调用
-   5. 业务层的方法应多使用SOLID设计模式
+    1. 得到的数据是符合预期的，规范的
+    2. 业务层应该专注于业务处理，不必关注数据怎么入库
+    3. 业务层需要暴露一些接口给其他业务层调用
+    4. 不同的业务模块应该且最好只能通过业务层的接口进行互相import和调用
+    5. 业务层的方法应多使用SOLID设计模式
 
    本层的技术实现没有明确定义。
 
@@ -441,42 +631,135 @@ def run_migrations_online():
 
    本层的技术实现基于sqlalchemy。
 
-  ## db
+## rdb
 
-FastAPI 是基于startlet实现的[ASGI](https://asgi.readthedocs.io/en/latest/) framework，[Starlette](https://www.starlette.io/)使用 [Uvicorn](http://www.uvicorn.org/)（[daphne](https://github.com/django/daphne/), or [hypercorn](https://pgjones.gitlab.io/hypercorn/)）作为  ASGI server, Uvicorn 使用 [uvloop](https://github.com/MagicStack/uvloop) 来实现事件回环监听，来代替python asyncio内置的事件回环。那么基于fastAPI实现的api应该尽可能的使用这个异步的特性。所以db的实现就有同步和异步2中方式。
+[redis/redis-py: Redis Python Client (github.com)](https://github.com/redis/redis-py)  4.2.0rc1+ 版本以上已经开始支持asyncio.
+可以考虑使用使用新版本的redis-py. 但是对于 python3.7来说，redsi5.0版本是最后一个版本
+
+> redis-py 5.0 will be the last version of redis-py to support Python 3.7, as it has
+> reached [end of life](https://devguide.python.org/versions/). redis-py 5.1 will support Python 3.8+.
+
+## db
+
+FastAPI 是基于startlet实现的[ASGI](https://asgi.readthedocs.io/en/latest/)
+framework，[Starlette](https://www.starlette.io/)使用 [Uvicorn](http://www.uvicorn.org/)
+（[daphne](https://github.com/django/daphne/), or [hypercorn](https://pgjones.gitlab.io/hypercorn/)）作为 ASGI server,
+Uvicorn 使用 [uvloop](https://github.com/MagicStack/uvloop) 来实现事件回环监听，来代替python
+asyncio内置的事件回环。那么基于fastAPI实现的api应该尽可能的使用这个异步的特性。所以db的实现就有同步和异步2中方式。
+
+### sqlalchemy
+
+sqlalchemy有1.4.x版本和2.0.x版本。推荐使用2.0版本，主要是因为2.0版本已经把async转正。
+
+如果你用的语法还是1.4版本，可以使用一下命令看到SQLAlchemy给你的语法建议
+
+具体链接为：[SQLAlchemy 2.0 - Major Migration Guide — SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/changelog/migration_20.html#migration-to-2-0-step-two-turn-on-removedin20warnings)
+
+```python
+SQLALCHEMY_WARN_20 = 1
+python - W
+always::DeprecationWarning
+test3.py
+```
 
 ### 同步db
 
-使用db_writer和db_reader进行装饰器封装，以达到数据库立刻执行和立刻关闭session。
+使用session，注意使用with语法
 
 ### 异步db
 
-SQLAlchemy1.4版本支持asyncio。根据官方文档 [Asynchronous IO Support for Core and ORM](https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#asynchronous-io-support-for-core-and-orm) 介绍，SQLAlchemy的内部是通过使用 [greenlet](https://greenlet.readthedocs.io/en/latest/) 库来实现的异步。支持面向IO：[`AsyncEngine.connect()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncEngine.connect) /[`AsyncConnection.execute()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncConnection.execute) 和面向ORM：[`AsyncSession`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncSession) class /[`AsyncSession.execute()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncSession.execute) 2种方式来实现异步：
+- SQLAlchemy1.4版本支持asyncio。但是建议使用2.0以上版本。因为1.4版本官方依然写着 `beta`
+
+  > [Asynchronous I/O (asyncio) — SQLAlchemy 1.4 Documentation](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html)
+  >
+  > The asyncio extension as of SQLAlchemy 1.4.3 can now be considered to be **beta level** software. API details are
+  subject to change however at this point it is unlikely for there to be significant backwards-incompatible changes.
+  >
+  > SQLAlchemy 1.4.3 的 asyncio 扩展现在可以被认为是 beta 级软件。API 详细信息可能会发生变化，但此时不太可能有明显的向后不兼容更改。
+
+- driver要使用asyncmy（aiomysql据说SQLAlchemy不在支持） 而不能在使用pymysql
+
+    - [MySQL and MariaDB — SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/dialects/mysql.html#aiomysql)
+
+    - ```tex
+    The aiomysql dialect is not currently tested as part of SQLAlchemy’s continuous integration. As of September, 2021 the driver appears to be unmaintained and no longer functions for Python version 3.10, and additionally depends on a significantly outdated version of PyMySQL. Please refer to the asyncmy dialect for current MySQL/MariaDB asyncio functionality.
+    aiomysql 方言目前尚未作为 SQLAlchemy 持续集成的一部分进行测试。截至 2021 年 9 月，该驱动程序似乎未维护，不再适用于 Python 版本 3.10，并且还依赖于明显过时的 PyMySQL 版本。请参考 asyncmy 方言了解当前的 MySQL/MariaDB asyncio 功能。
+    ```
+
+根据官方文档 [What’s New in SQLAlchemy 1.4? — SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/changelog/migration_14.html#asynchronous-io-support-for-core-and-orm)
+介绍，SQLAlchemy的内部是通过使用 [greenlet](https://greenlet.readthedocs.io/en/latest/)
+库来实现的异步。支持面向IO：[`AsyncEngine.connect()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncEngine.connect)
+/[`AsyncConnection.execute()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncConnection.execute)
+和面向ORM：[`AsyncSession`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncSession)
+class
+/[`AsyncSession.execute()`](https://docs.sqlalchemy.org/en/14/orm/extensions/asyncio.html#sqlalchemy.ext.asyncio.AsyncSession.execute)
+2种方式来实现异步：
 
 #### `AsyncEngine`方式
 
 ```python
-from sqlalchemy import select
+import asyncio
+
 from sqlalchemy import Column
 from sqlalchemy import Integer
+from sqlalchemy import MetaData
 from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.ext.asyncio import create_async_engine
 
-engine = create_async_engine("mysql+aiomysql://user:pass@host/dbname")
+meta = MetaData()
 
 t1 = Table(
     "t1", meta, Column("id", Integer, primary_key=True), Column("name", String)
 )
 
-async with engine.connect() as conn:
-    result = await conn.execute(t1.select())
-    print(result.fetchall())
-```
 
-- driver要使用aiomysql 而不能在使用pymysql
-- 执行的结果是[`Result`](https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Result) 对象，一个 [`Row`](https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Row) objects 的列表
-- 可以使用`Row._mapping`取出结果的字典形式
+async def async_main():
+    # engine is an instance of AsyncEngine
+    engine = create_async_engine(
+        "mysql+asyncmy://user:pass@host/dbname",
+        echo=True,
+    )
+
+    # conn is an instance of AsyncConnection
+    async with engine.begin() as conn:
+        # to support SQLAlchemy DDL methods as well as legacy functions, the
+        # AsyncConnection.run_sync() awaitable method will pass a "sync"
+        # version of the AsyncConnection object to any synchronous method,
+        # where synchronous IO calls will be transparently translated for
+        # await.
+        await conn.run_sync(meta.drop_all)
+        await conn.run_sync(meta.create_all)
+
+        # for normal statement execution, a traditional "await execute()"
+        # pattern is used.
+        await conn.execute(
+            t1.insert(), [{"name": "some name 1"}, {"name": "some name 2"}]
+        )
+
+    async with engine.connect() as conn:
+        # the default result object is the
+        # sqlalchemy.engine.Result object
+        result = await conn.execute(t1.select())
+
+        # the results are buffered so no await call is necessary
+        # for this case.
+        print(result.fetchall())
+
+        # for a streaming result that buffers only segments of the
+        # result at time, the AsyncConnection.stream() method is used.
+        # this returns a sqlalchemy.ext.asyncio.AsyncResult object.
+        async_result = await conn.stream(t1.select())
+
+        # this object supports async iteration and awaitable
+        # versions of methods like .all(), fetchmany(), etc.
+        async for row in async_result:
+            print(row)
+
+
+asyncio.run(async_main())
+
+```
 
 #### `AsyncSession`方式
 
@@ -484,42 +767,141 @@ async with engine.connect() as conn:
 import asyncio
 
 from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.future import select
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+
+class Base(AsyncAttrs, DeclarativeBase):
+    pass
+
 
 class A(Base):
     __tablename__ = "a"
 
     id = Column(Integer, primary_key=True)
     data = Column(String)
-    
-engine = create_async_engine("mysql+aiomysql://user:pass@host/dbname")
-    sync with AsyncSession(engine) as session:
-        stmt = select(A).order_by(A.id)
-        result = await session.execute(stmt)
+    bs = relationship("B")
+
+
+class B(Base):
+    __tablename__ = "b"
+    id = Column(Integer, primary_key=True)
+    a_id = Column(ForeignKey("a.id"))
+    data = Column(String)
+
+
+def run_queries(session):
+    """A function written in "synchronous" style that will be invoked
+    within the asyncio event loop.
+
+    The session object passed is a traditional orm.Session object with
+    synchronous interface.
+
+    """
+
+    stmt = select(A)
+
+    result = session.execute(stmt)
+
+    for a1 in result.scalars():
+        print(a1)
+        # lazy loads
+        for b1 in a1.bs:
+            print(b1)
+
+    result = session.execute(select(A).order_by(A.id))
+
+    a1 = result.scalars().first()
+
+    a1.data = "new data"
+
+
+async def async_main():
+    """Main program function."""
+
+    engine = create_async_engine(
+        "mysql+asyncmy://user:pass@host/dbname",
+        echo=True,
+    )
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with AsyncSession(engine) as session:
+        async with session.begin():
+            session.add_all(
+                [
+                    A(bs=[B(), B()], data="a1"),
+                    A(bs=[B()], data="a2"),
+                    A(bs=[B(), B()], data="a3"),
+                ]
+            )
+
+        # we have the option to run a function written in sync style
+        # within the AsyncSession.run_sync() method.  The function will
+        # be passed a synchronous-style Session object and the function
+        # can use traditional ORM patterns.
+        await session.run_sync(run_queries)
+
+        await session.commit()
+
+
+asyncio.run(async_main())
 ```
 
-- ORM方式
+- engine和session分别执行fetchall()
 
-- 执行的结果是[`Result`](https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Result) 对象，但是与`AsyncEngine`不同，而是一个形如：`[(A,)]` 这样的形式。这样设计是因为如果有多表联查，比如 `select(A).join(B, A.c.id == B.c.user_id)`,那么返回的结果就是 `[(A, B)]`
+    - engine返回值形如`[('default_uuid', 'admin',...)]`, 元组内是<class 'sqlalchemy.engine.row.Row'>类型数据
+    - session返回值形如`[(<dc.models.user.User object at 0x7f556282bad0>,)]` 元组内是<class 'sqlalchemy.engine.row.Row'>
+      类型数据
+
+  可以看出session方式更适合于查询orm对象时使用
+
+- 另外注意scalar的使用，可以更方便，比如`result.scalars().fetchall()`
+  返回值形如`[<dc.models.user.User object at 0x7ff4090c4910>]`去掉了内部的tuple封装；但也要注意如果查询的不是一个完整的对象，而是部分指定字段，scalars可能并不方便。
 
 - `sqlalchemy.orm.exc.DetachedInstanceError`这个异常往往是引用了session之外的对象属性造成的。
 
-  > sqlalchemy.orm.exc.DetachedInstanceError: Instance <Desktop at 0x7f249d225310> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: http://sqlalche.me/e/14/bhk3)
+  > sqlalchemy.orm.exc.DetachedInstanceError: Instance <Desktop at 0x7f249d225310> is not bound to a Session; attribute
+  refresh operation cannot proceed (Background on this error at: http://sqlalche.me/e/14/bhk3)
 
-  解决方案：设置expire_on_commit为false.`sessionmaker(bind=eng, expire_on_commit=False)` expire_on_commit参数的含义是：该字段控制SQLAlchemy的对象刷新机制。默认是true，即在session调用commit之后会主动将同一个session在commit之前查询得到的ORM对象的_sa_instance_state.expire属性设置为true，这样再次读取该对象属性时将重载这个对象，方法是重新调用查询语句。如果设置为false，那么获取属性将不再重新调用查询语句，直接从缓存获取，那么也就不会用到session，也就不会再出现`DetachedInstanceError`.但是这样做是有一定的风险的，因为有脏数据的情况，可能会造成内数据不一致。
+  解决方案：设置expire_on_commit为false.`sessionmaker(bind=eng, expire_on_commit=False)`
+  expire_on_commit参数的含义是：该字段控制SQLAlchemy的对象刷新机制。默认是true，即在session调用commit之后会主动将同一个session在commit之前查询得到的ORM对象的_sa_instance_state.expire属性设置为true，这样再次读取该对象属性时将重载这个对象，方法是重新调用查询语句。如果设置为false，那么获取属性将不再重新调用查询语句，直接从缓存获取，那么也就不会用到session，也就不会再出现`DetachedInstanceError`
+  .但是这样做是有一定的风险的，因为有脏数据的情况，可能会造成数据不一致。
+
+  ```python
+  async def create_admin_and_privilege_dao(create_admin, privilege_list):
+      # 使用事务。自动commit以及关闭session
+      async with AsyncSession(DB_Engine, expire_on_commit=False) as session:
+          async with session.begin():
+              session.add(create_admin)
+              if privilege_list:
+                  session.add_all(privilege_list)
+  
+  # dao调用
+  await create_admin_and_privilege_dao(admin, privilege_list)
+  from loguru import logger
+  logger.info(admin.__dict__)
+  # 输出  {'_sa_instance_state': <sqlalchemy.orm.state.InstanceState object at 0x7fb55761d600>, 'account': 'ssss', 'phone': '17628298765', 'desc': '', 'password': '01e7d3787639714b610ec89a5afaad9d', 'uuid': '3518c31e75664087bd6965c394598f58', 'user_type': <UserTypeEnum.normal_admin: 'normal_admin'>, 'creator_uuid': 'default_uuid', 'privileges': [], 'display_name': '', 'company': '', 'enabled': True, 'created_at': datetime.datetime(2023, 8, 18, 12, 2, 36, 604688), 'updated_at': datetime.datetime(2023, 8, 18, 12, 2, 36, 604697)}
+  ```
+
+  可以看到上例中，create_admin对象在被session
+  insert之后，在with语法之外，依然可以访问create_admin属性，且更新了create_admin中created_at、updated_at、enabled这些入参中没有设置的默认字段。
 
 #### 同步和异步性能对比（jmeter）
 
 uvicorn 参数：
 
-> pool_size=5    
+> pool_size=5
 >
-> max_overflow=10 
+> max_overflow=10
 >
 > worker=1
 
@@ -541,9 +923,11 @@ uvicorn 参数：
 | 200                              | 1000     | 56       | 28       | 88       | 756.429652  | 0.785                              |
 | 1000                             | 1000     | 104      | 54       | 317      | 823.723229  | 0.878                              |
 
-可以看到。异步的qps 比同步要高很多，同步平均在125左右，而异步随着并发数增加，qps 升高。当然异步由于对mysql连接需求量过大，可能导致连接池满，所以加了并发限制（limit_concurrency=10），超出并发能力的会直接返回503 Service Unavailable。
+可以看到。异步的qps 比同步要高很多，同步平均在125左右，而异步随着并发数增加，qps
+升高。当然异步由于对mysql连接需求量过大，可能导致连接池满，所以加了并发限制（limit_concurrency=10），超出并发能力的会直接返回503
+Service Unavailable。
 
-  ## exception
+## exception
 
 exception和正常的response进行封装成统一的返回格式：
 
@@ -555,7 +939,7 @@ exception和正常的response进行封装成统一的返回格式：
 }
 ```
 
-##  error_code
+## error_code
 
 ```txt
 code有4部分组成，中间以_分割，比如：API_200_000_9999
@@ -565,15 +949,17 @@ code有4部分组成，中间以_分割，比如：API_200_000_9999
 第四部分：4位，错误码，比如0000标识未知错误，0001标识参数校验失败
 ```
 
-  ## token
+## token
 
 这里不使用OAuth2的token方案。因为OAth2的token方案相对复杂，且考虑到与第三方对接。尤其token refresh的过程：
+
 1. login得到access_token 和 refresh_token,refresh_token比access_token的有效期更长
 2. 客户端请求使用access_token，如果过期，客户端使用refresh_token再次请求得到新的access_token。
    当然这里也可以返回新的refresh_token，新的refresh_token可以有新的过期时间
 3. 如果access_token过期，并且refresh_token也过期，那么需要重新登录。
 
 以上方案略显复杂。重新设计如下：
+
 1. login得到access_token。
    token的生成方式有多种，比如jwt;非对称加密字符串；但是 jwt加密字符串过长且jwt本身的方案特性本系统没有采用；
    非对称AES加密又消耗时间过长，经验证加密一个字符串需要500ms左右。这行的话login API的耗时要达到1s,太长。所以简化为：
@@ -591,24 +977,25 @@ code有4部分组成，中间以_分割，比如：API_200_000_9999
 3. token包含了一些信息，可以进行解密读取
 
 缺点：
+
 1. 需要保存会话信息，即需依赖redis这样的server端存储token和其过期时间点
 
-  ## 公共类库
+## 公共类库
 
-  - lock
-  - cache
-  - tools工具包
-      - UUID
-      - md5
-      - Symmetric Encryption、Symmetric Decryption 对称加密解密
-      - format_datetime 时间格式转化
-      - 使用python执行一些系统命令
-      - 使用socket判断`ip:port `是否可用
-      - ip和数字互转
-      - 随机字符串生成
-      - 获取本地ip/mac
+- lock
+- cache
+- tools工具包
+    - UUID
+    - md5
+    - Symmetric Encryption、Symmetric Decryption 对称加密解密
+    - format_datetime 时间格式转化
+    - 使用python执行一些系统命令
+    - 使用socket判断`ip:port `是否可用
+    - ip和数字互转
+    - 随机字符串生成
+    - 获取本地ip/mac
 
-  ## 单元测试
+## 单元测试
 
 使用fastapi的 test client进行http请求。
 
@@ -617,8 +1004,6 @@ code有4部分组成，中间以_分割，比如：API_200_000_9999
 # 打包发布
 
 poetry build 即可得到wheel 包
-
-
 
 # 扩展API
 
@@ -629,7 +1014,7 @@ poetry build 即可得到wheel 包
 ```
 .
 ├── docs
-├── myapp
+├── eojo
 │   ├── api
 │   │   ├── desktop.py
 │   │   ├── __init__.py
@@ -708,11 +1093,9 @@ poetry build 即可得到wheel 包
 └── setup.py
 ```
 
-
-
 ## 数据模型和数据查询
 
-第一步一般思考数据模型的建立，对应需要什么样的数据库表结构。在这一步，需要在myapp/models目录下建立相应的模型，并且可以使用alembic生成对应的数据库版本文件。数据模型注意一下几点：
+第一步一般思考数据模型的建立，对应需要什么样的数据库表结构。在这一步，需要在eojo/models目录下建立相应的模型，并且可以使用alembic生成对应的数据库版本文件。数据模型注意一下几点：
 
 1. 字段需要索引的需要加上索引
 2. 注释描述字段使用comment，这样数据库也可以看到描述信息
@@ -725,9 +1108,9 @@ poetry build 即可得到wheel 包
 数据库模型确定之后，开始考虑API设计。API设计包括：API url/api request 设计/response 结构设计。
 
 1. API url 请遵循restful 风格规范，比如复数，使用method代替一些出现在url的词语等
-2. api request  包含request query字段、request params字段和request body,需要遵循fastAPI规范
-   1. request query和request params在API接口上进行装饰器声明
-   2. request body 需要声明schema模型
+2. api request 包含request query字段、request params字段和request body,需要遵循fastAPI规范
+    1. request query和request params在API接口上进行装饰器声明
+    2. request body 需要声明schema模型
 3. response 模型需要声明schema模型
 
 schema模型设计需要注意：
@@ -736,25 +1119,28 @@ schema模型设计需要注意：
 
 2. 本框架对pydantic进行一定程度的修改
 
-   1. 增加了SchemaMetaclass元类。
+    1. 增加了SchemaMetaclass元类。
 
-      1. schema模型定义时，metaclass=SchemaMetaclass
-      2. 并且配置config，指定orm_mode = True和orm_model = Desktop
+        1. schema模型定义时，metaclass=SchemaMetaclass
+        2. 并且配置config，指定orm_mode = True和orm_model = Desktop
 
-      如此就可以实现：
+       如此就可以实现：
 
-      1. schema定义的字段如果跟数据库model定义的字段同名，那么本框架在生成swagger 文档时，会自动合并schema字段的description字段和数据模型的comment字段。目的是可以重复使用字段的描述
-      2. schema模型的定义一般会有好几个比如：xxBase/xxUpdate/xxCreate 并且会存在继承关系，那么只要父类的元类为SchemaMetaclass，其子类都会合并描述字段
-      3. 为了方便处理，schema的每个字段必须是：Field定义，即使什么额外的属性都没有，比如：is_default: Optional[bool] = Field()
+        1. schema定义的字段如果跟数据库model定义的字段同名，那么本框架在生成swagger
+           文档时，会自动合并schema字段的description字段和数据模型的comment字段。目的是可以重复使用字段的描述
+        2. schema模型的定义一般会有好几个比如：xxBase/xxUpdate/xxCreate 并且会存在继承关系，那么只要父类的元类为SchemaMetaclass，其子类都会合并描述字段
+        3. 为了方便处理，schema的每个字段必须是：Field定义，即使什么额外的属性都没有，比如：is_default: Optional[bool] =
+           Field()
 
 3. schema模型一般对于业务，所以schema与数据模型往往不是一一对应
 
 ## api 接口和openAPI
 
-有了数据模型作为后端存储，schema模型作为输入输出的规范，API自然而然就已经确定了，只需要在myapp/api下新增对应的API即可。
+有了数据模型作为后端存储，schema模型作为输入输出的规范，API自然而然就已经确定了，只需要在eojo/api下新增对应的API即可。
 
 1. router配置路由和是否需要token校验
-2. 本系统统一了正常response和异常response的结构，统一为 {“data”: {}, "code":"", "message": ""}, 为了能够得到openAPI的自动文档，这里使用了pydantic的genericModel；所以所有的API的response model都是MyBaseSchema的实例
+2. 本系统统一了正常response和异常response的结构，统一为 {“data”: {}, "code":"", "message": ""},
+   为了能够得到openAPI的自动文档，这里使用了pydantic的genericModel；所以所有的API的response model都是MyBaseSchema的实例
 3. 在main.py拦截异常：RequestValidationError 和 HTTPException，重新返回为MyBaseSchema格式
 4. 新加的router要在main.py进行注册：app.include_router(xx.router)
 5. openAPI也要进行相应更新：openapi.py，增加openapi_tags内容
@@ -769,26 +1155,17 @@ manager 之间的引用最好使用manager对外暴露的方法。
 
 ## 异常和国际化
 
-异常主要是manager层会比较多。每个异常应该在 myapp/exception目录下建立对应的py文件
+异常主要是manager层会比较多。每个异常应该在 eojo/exception目录下建立对应的py文件
 
-1. 每个exception继承myapp.base.exception.MyBaseException
+1. 每个exception继承eojo.base.exception.MyBaseException
 2. 每个exception要设置code、message、status_code。
-   1. code来源于 error code的定义，具体可以参考error_code章节
-   2. 每个异常API返回的response中，code码对应i18n文件中的设置
-   3. 客户端需要获取到I18n文件，从中找到code对应的翻译，显示在页面上
-   4. message一般是英文描述，作为辅助定位，一般不展示在页面上
+    1. code来源于 error code的定义，具体可以参考error_code章节
+    2. 每个异常API返回的response中，code码对应i18n文件中的设置
+    3. 客户端需要获取到I18n文件，从中找到code对应的翻译，显示在页面上
+    4. message一般是英文描述，作为辅助定位，一般不展示在页面上
 
 ## test
 
 每加一个API都应在test添加具体的测试代码。每次API的修改都应该迅速跑一下test，不断的迭代式开发。
 
-
-
-
-
 至此，一个新的API就扩展完成了。
-
-  
-
-  
-

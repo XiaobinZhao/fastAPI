@@ -1,5 +1,40 @@
+from enum import Enum
+
+FILES_STATIC_PATH = 'resources'
+FILES_TEMPLATE_PATH = 'templates'
+TEST_SERVER_NAME = 'testserver'
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+TRIAL_SERVICE_UUID = "89b5363ffee04c699f69ec3905079f7f"
 
 
-SECRET_KEY = "84f2434e787b20d9ec03ed82d1f17a5159e0e1b6231a82e897aa8e957e98fac3"  # openssl rand -hex 32
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 5
+class MyBaseEnum(Enum):
+    def __str__(self):
+        # 重写转为字符串
+        return str(self._value_)
+
+    def __repr__(self):
+        # 重写实例化输出
+        return str(self._value_)
+
+
+class LogStatusEnum(str, MyBaseEnum):
+    # 'success', 'fail', 'unknown'
+    success = "success"
+    fail = "fail"
+    unknown = "unknown"
+
+
+class EnabledEnum(str, MyBaseEnum):
+    enabled = "enabled"
+    disabled = "disabled"
+
+
+class UserTypeEnum(str, MyBaseEnum):
+    admin = "admin"
+    user = "user"
+
+
+class LogResourceAppTypeEnum(str, MyBaseEnum):
+    ios = "ios"
+    android = "android"
+    web = "web"

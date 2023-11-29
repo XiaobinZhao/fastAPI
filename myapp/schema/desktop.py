@@ -1,9 +1,11 @@
 from typing import Optional
-from datetime import datetime
+
+from myapp.base.schema import MyTimestamp
 from pydantic import BaseModel, Field
 from pydantic import root_validator
+
+from myapp.base.constant import EnabledEnum
 from myapp.base.schema import SchemaMetaclass
-from myapp.base.schema import EnabledEnum
 from myapp.base.schema import optional_but_cant_empty
 from myapp.models.desktop import Desktop
 
@@ -28,8 +30,8 @@ class DesktopDetail(DesktopBase):
     node_uuid: str = Field(max_length=64)
     enabled: EnabledEnum = Field(EnabledEnum.enabled)
     is_attached_gpu: bool = Field(False)
-    created_at: Optional[datetime] = Field()
-    updated_at: Optional[datetime] = Field()
+    created_at: Optional[MyTimestamp] = Field()
+    updated_at: Optional[MyTimestamp] = Field()
 
 
 class DesktopPatch(DesktopBase):

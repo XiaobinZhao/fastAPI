@@ -16,6 +16,9 @@ OpenAPISchema = {
     }, {
         "name": "user",
         "description": "Manage users."
+    }, {
+        "name": "log",
+        "description": "Manage log."
     }]
 }
 

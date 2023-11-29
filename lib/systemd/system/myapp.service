@@ -1,12 +1,12 @@
 [Unit]
 Description=myapp daemon
-After=redis-server.service nginx.service mysql.service
-Wants=redis-server.service mysql.service
+After=nginx.service mysql.service
+Wants=mysql.service
 
 [Service]
 Type=forking
-ExecStart=/opt/myapp/myapp.sh start
-ExecStop=/opt/myapp/myapp.sh stop
+ExecStart=/opt/myapp/myapp-api/myapp.sh start
+ExecStop=/opt/myapp/myapp-api/myapp.sh stop
 #Restart=always
 #RestartSec=5s
 #StartLimitInterval=0

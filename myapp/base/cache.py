@@ -1,9 +1,11 @@
-import redis
-import json
 import asyncio
-import aioredis
-from loguru import logger
+import json
 from json.decoder import JSONDecodeError
+
+import redis
+import redis.asyncio as aioredis
+from loguru import logger
+
 from myapp.conf.config import settings
 
 
@@ -11,14 +13,19 @@ def format_result(func):
     async def gen_status(*args, **kwargs):
         error, result = None, None
         try:
-            result = await func(*args, **kwargs)
-            if type(result) == bytes:
+            if asyncio.iscoroutinefunction(func):  # 判断是否是协程
+                result = await func(*args, **kwargs)
+            else:
+                result = func(*args, **kwargs)
+            if type(result) in (bytes, str):
                 try:
                     result = json.loads(result)
-                except JSONDecodeError as e:
-                    logger.error("Invalidate json str in redis. %s", str(e))
+                except JSONDecodeError:
+                    if type(result) == bytes:
+                        result = str(result, encoding="utf-8")
         except Exception as e:
             error = str(e)
+            raise e
         return {'result': result, 'error': error}
 
     return gen_status
@@ -26,8 +33,9 @@ def format_result(func):
 
 class Cache(object):
     """
-    简单内存缓存，使用一个字典保存数据。
+    简单内存缓存，使用字典保存数据。
     """
+
     def __init__(self):
         self._cache = {}
 
@@ -61,6 +69,7 @@ class RedisCache(Cache):
     程序调用get/set/remove时，重新从池内获取连接
     整个应用退出时，关闭所有的socket 连接。
     """
+
     def __init__(self):
         self._pool = None
         self._redis_client = self.get_client()
@@ -132,27 +141,18 @@ class RedisCache(Cache):
 class AsyncRedisCache(Cache):
     """
     异步的redis cache
+    默认redis会创建连接池处理redis连接。并且在redis实例关闭时自动关闭池内的连接
     """
 
     def __init__(self):
-        self._pool = None
-
-    async def init_cache_connect(self):
-        try:
-            self._pool = await aioredis.create_redis_pool(settings.redis.url)
-            logger.info("Redis cache connecting ")
-        except Exception as e:
-            logger.error(str(e), exc_info=True)
-            if "Connect call failed" in str(e):  # 连接失败
-                raise Exception("Connect call failed. Connect redis failed, please check redis server status.")
+        super().__init__()
+        self._cache = aioredis.from_url(settings.redis.url, decode_responses=True)  # 默认返回bytes; 这里设置默认需要decode
 
     async def close(self):
         """
-        优雅的关闭redis 连接
+        在redis实例关闭时自动关闭池内的连接
         """
-        self._pool.close()
-        await self._pool.wait_closed()
-        logger.info("Disconnect all redis tcp connection !")
+        await self._cache.close()
 
     @format_result
     async def set(self, key, value, ex=None, px=None, nx=False):
@@ -166,35 +166,34 @@ class AsyncRedisCache(Cache):
             if it does not exist
         :return:
         """
-        return await self._pool.set(key, value, expire=ex, pexpire=px, exist=nx)
+        return await self._cache.set(key, value, ex=ex, px=px, nx=nx)
 
     @format_result
     async def get(self, key):
-        return await self._pool.get(key)
+        return await self._cache.get(key)
 
     @format_result
     async def expire(self, key, time):
-        return await self._pool.expire(key, time)
+        return await self._cache.expire(key, time)
 
     @format_result
     async def remove(self, key):
-        return await self._pool.delete(key)
+        return await self._cache.delete(key)
 
 
 MyCache = AsyncRedisCache()
 
-
 if __name__ == '__main__':
     async def filter_desktops():
         s = await MyCache.set("xxx", "xxx", ex=20)
-        d = await MyCache.get("xxx")   # ConnectClosedError(Reader at end of file)
-        f = await MyCache.get("xxx")   # ConnectRefusedError([Errno 111] Connect call failed ('127.0.0.1', 6379))
+        d = await MyCache.get("xxx")  # ConnectClosedError(Reader at end of file)
+        f = await MyCache.get("xxx")  # ConnectRefusedError([Errno 111] Connect call failed ('127.0.0.1', 6379))
         g = await MyCache.get("xxx")
         g1 = await MyCache.get("xxx")
         g2 = await MyCache.get("xxx")
         h = await MyCache.get("yyy")
         print(s, d, f, g, g1, g2, h)
 
+
     loops = asyncio.get_event_loop()
     loops.run_until_complete(asyncio.wait([filter_desktops()]))
-

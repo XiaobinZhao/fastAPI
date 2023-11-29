@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Enum, String
-from myapp.base.db import BaseModel
+
+from myapp.base.db_async import BaseModel
 
 
 class User(BaseModel):
