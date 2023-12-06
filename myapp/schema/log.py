@@ -25,6 +25,7 @@ class LogBase(BaseModel, metaclass=SchemaMetaclass):
     obj_name: str = Field(default="", max_length=255)
     ref_id: str = Field(default="", max_length=255)
     ref_name: str = Field(default="", max_length=255)
+    req_id: str = Field(default="")
     status: LogStatusEnum = Field(default="")
     request_ip: str = Field(default="", max_length=20)
     error_code: str = Field(default="", max_length=64)

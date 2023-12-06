@@ -1,5 +1,5 @@
 from fastapi import status
-from myapp.error_code.desktop import ErrorCode
+from myapp.code.desktop import ErrorCode
 
 from myapp.base.exception import MyBaseException
 

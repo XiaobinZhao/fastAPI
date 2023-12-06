@@ -10,6 +10,7 @@ from myapp.base.constant import LogStatusEnum
 from myapp.base.schema import PageSchema, MyBaseSchema
 from myapp.models.log import Log as DB_Log_Model
 from myapp.schema.log import LogCreateRequest as LogCreateRequestSchema
+from myapp.base.context import request_id_var, request_context
 
 
 class LogManager(object):
@@ -33,14 +34,13 @@ class LogManager(object):
 
     @classmethod
     async def record_log(cls, **kwargs):
-        _request = kwargs.pop('request', None)
-        if _request:
-            kwargs['request_params'] = await cls.json_transform(_request)
-            kwargs["request_ip"] = _request.client.host or "127.0.0.1"
-        else:
-            kwargs["request_ip"] = "127.0.0.1"
+        kwargs["req_id"] = request_id_var.get()
         new_log = DB_Log_Model(**kwargs)
         new_log.uuid = uuid4().hex
+
+        for k, v in request_context.items():
+            setattr(new_log, k, v)
+
         return await new_log.async_create()
 
     @staticmethod
@@ -62,7 +62,7 @@ class LogWrapper(object):
     def __init__(self, domain, action, status=LogStatusEnum.unknown, request_ip=""):
 
         self.log_db_model = DB_Log_Model(uuid=uuid4().hex, action=action, domain=domain, status=status,
-                                         request_ip=request_ip)
+                                         request_ip=request_ip, req_id=request_id_var.get())
 
     async def __aenter__(self):
         return self
@@ -97,11 +97,6 @@ def log(domain, action, **out_kwargs):
                 for k, v in out_kwargs.items():
                     setattr(log_context.log_db_model, k, v)
 
-                async def set_log_request_params(_request):
-                    log_context.log_db_model.request_ip = log_context.log_db_model.request_ip \
-                                                          or _request.client.host or "127.0.0.1"
-                    log_context.log_db_model.request_params = await LogManager.json_transform(_request)
-
                 def set_request_extra_params():
                     log_params = kwargs.get("log_params", {})
                     for _k, _v in log_params.items():
@@ -112,43 +107,19 @@ def log(domain, action, **out_kwargs):
                         else:
                             setattr(log_context.log_db_model, _k, _v)
 
-                request_before_func = kwargs.get("request", None)
-                if request_before_func:
-                    await set_log_request_params(request_before_func)
-                set_request_extra_params()
-
                 func_return = None
                 try:
                     func_return = await func(*args, **kwargs)
                 except Exception as e:
                     raise e  # 有异常正常抛出
                 finally:  # 但是一定要把log的上下文处理完成
-                    # 可能在func 执行完成之后才会设置REQUEST对象
-                    request_after_func = kwargs.get("request", None)
-                    if request_after_func:
-                        if getattr(request_after_func, "obj_id", ""):
-                            log_context.log_db_model.obj_id = request_after_func.obj_id
-                        if not request_before_func:  # 如果是在func之前设置的request，不用再次处理
-                            await set_log_request_params(request_after_func)
-                        # 处理操作用户信息
-                        token_payload = getattr(request_after_func, "token_payload", None)
-                        if token_payload:
-                            log_context.log_db_model.user_type = token_payload[0]
-                            log_context.log_db_model.user_uuid = token_payload[1]["user_uuid"]
-                            log_context.log_db_model.user_email = token_payload[1]["user_email"]
-                        else:  # 如果没有payload，一般是登录操作，直接从request获取
-                            log_context.log_db_model.user_uuid = getattr(request_after_func, "user_uuid", "")
-                            log_context.log_db_model.user_email = getattr(request_after_func, "user_email", "")
+                    for k, v in request_context.items():
+                        setattr(log_context.log_db_model, k, v)
 
-                        # 如果API自己设置了描述，则优先取API设置的
-                        log_context.log_db_model.operation_desc = getattr(request_after_func, "operation_desc",
-                                                                          "") or log_context.log_db_model.operation_desc
+                    set_request_extra_params()
 
                     if isinstance(func_return, MyBaseSchema):
                         log_context.log_db_model.response_body = str(func_return.json()).encode()
-
-                    # 设置其他的隐含参数
-                    set_request_extra_params()
 
                     logger.info(log_context.log_db_model.to_dict())
 

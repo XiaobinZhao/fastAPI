@@ -12,7 +12,7 @@ class ErrorCode(Code, ErrorCodeBase):
 
     @classmethod
     def USER_LOGIN_NAME_EXIST_ERROR(cls):
-        _code = cls.code_level + cls.code_type + "_409_" + cls.code_business + "_0103"
+        _code = cls.code_level + cls.code_type + "_409_" + cls.code_business + "_0100"  # 登录名重复
         _zh = "用户登录名不能重复"
         _en = "the user login name cannot be duplicated"
         return {"code": _code, "zh": _zh, "en": _en}

@@ -1,33 +1,36 @@
 import pathlib
 
 import uvicorn
-from loguru import logger
-from fastapi import status
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi import status
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
-from myapp.utils import generate_i18n
+from loguru import logger
+
+from myapp.base import generate_i18n
 
 from myapp.base.cache import MyCache
-from myapp.openapi import custom_openapi
 from myapp.conf.config import settings
 from myapp.conf.loginit import config as log_configs
 from myapp.base.response import MyBaseResponse
 from myapp.base.code import ErrorCode
-from myapp.error_code.auth import ErrorCode as AuthErrorCode
+from myapp.code.auth import ErrorCode as AuthErrorCode
+from myapp.utils.request_id import RequestContextMiddleware
 from myapp.api import desktop
 from myapp.api import user
 from myapp.api import token
 from myapp.api import log
 from myapp.api import system
 
+from myapp.openapi import custom_openapi
 
 logger.configure(**log_configs)  # 配置loguru logger
 
 root_path = pathlib.Path(__file__).parent.resolve()  # 使用绝对路径，防止环境不同导致的异常
 
 app = FastAPI(docs_url=None, redoc_url=None)  # docs url 重新定义
+app.add_middleware(RequestContextMiddleware)
 custom_openapi(app)  # 设置自定义openAPI
 
 

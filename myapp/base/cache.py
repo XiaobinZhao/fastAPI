@@ -152,7 +152,7 @@ class AsyncRedisCache(Cache):
         """
         在redis实例关闭时自动关闭池内的连接
         """
-        await self._cache.close()
+        await self._cache.aclose()
 
     @format_result
     async def set(self, key, value, ex=None, px=None, nx=False):

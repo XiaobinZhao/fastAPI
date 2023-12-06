@@ -1,7 +1,7 @@
 from myapp.base.code import ErrorCode as ErrorCodeBase
 from myapp.base.code import SuccessCode as SuccessCodeBase
-from myapp.base.code import WarningCode as WarningCodeBase
 from myapp.base.code import InfoCode as InfoCodeBase
+from myapp.base.code import SuccessCode as WarningCodeBase
 
 
 class Code:
@@ -22,4 +22,3 @@ class WarningCode(Code, WarningCodeBase):
 
 class InfoCode(Code, InfoCodeBase):
     pass
-

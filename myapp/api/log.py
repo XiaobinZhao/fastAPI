@@ -6,13 +6,12 @@ from fastapi.requests import Request
 
 from myapp.base.router import MyRouter
 from myapp.base.schema import MyBaseSchema, PageSchema, MyFilterQueryParam
-from myapp.error_code.user import SuccessCode
+from myapp.code.user import SuccessCode
 from myapp.base.tools import aes_decrypt
 from myapp.conf.config import settings
-from myapp.error_code.log import SuccessCode
+from myapp.code.log import SuccessCode
 from myapp.exception.auth import RequestSecretInvalidException
 from myapp.manager.log import LogManager
-from myapp.manager.token import verify_token
 from myapp.schema.token import SecretRequestSchema
 from myapp.schema.log import LogBase as LogBaseSchema
 from myapp.schema.log import LogCreateRequest as LogCreateRequestSchema
@@ -20,8 +19,7 @@ from myapp.schema.log import LogCreateRequest as LogCreateRequestSchema
 router = MyRouter(prefix="/logs", tags=["log"])
 
 
-@router.get("/", response_model=MyBaseSchema[PageSchema[List[LogBaseSchema]]],
-            dependencies=[Depends(verify_token)])
+@router.get("/", response_model=MyBaseSchema[PageSchema[List[LogBaseSchema]]])
 async def list_logs(search_key: str = "operation_desc", search_str: str = "",
                     filters: MyFilterQueryParam = Query(default={}, description="其他过滤条件，必须符合a=xx,b=xx的键值对格式"),
                     skip: int = 0, limit: int = 100):

@@ -1,7 +1,7 @@
 from fastapi import status
 
 from myapp.base.exception import MyBaseException
-from myapp.error_code.system import ErrorCode
+from myapp.code.system import ErrorCode
 
 
 class I18nNotExistsException(MyBaseException):

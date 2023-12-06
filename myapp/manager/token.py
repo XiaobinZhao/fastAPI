@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.requests import Request
 
+from myapp.base.context import request_context
 from myapp.base.tools import crypt_context
 from myapp.conf.config import settings
 from myapp.exception.auth import UnauthorizedException, RequestSecretInvalidException, SignatureVerificationError
@@ -60,6 +61,7 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
                 raise UnauthorizedException(message="User %s not exist." % user_uuid)
             await MyCache.set(user_uuid, json.dumps(user.to_dict(["password"])))
             logger.info("cache missing, set user: %s to redis" % user_uuid)
+    request_context.update({"user_type": "user", "user_uuid": user_uuid})
     # 更新redis缓存时长，单位s
     await MyCache.expire(token, time=settings.identity.token_ttl)
 

@@ -1,6 +1,8 @@
 import json
 from uuid import uuid4
 from loguru import logger
+from myapp.base.snowflake import IDWorker
+
 from myapp.models.user import User as DB_User_Model
 from myapp.schema.user import UserCreate as UserCreateViewModel
 from myapp.exception.user import UserNotFountException
@@ -22,7 +24,7 @@ class UserManager(object):
         if is_exists_same_user:
             raise UserLoginNameExistException()
         user = DB_User_Model(**user.dict())
-        user.uuid = uuid4().hex
+        user.uuid = IDWorker.gen_id()
         user.password = crypt_context.hash(user.password)  # 加密密码
         user = await user.async_create()
         return user
@@ -48,7 +50,7 @@ class UserManager(object):
         return None
 
     async def patch_user(self, user_uuid, patched_user):
-        row_count = await DB_User_Model.async_update(uuid=user_uuid, **patched_user.dict(exclude_unset=True))
+        row_count = await DB_User_Model.async_update_by_uuid(uuid=user_uuid, **patched_user.dict(exclude_unset=True))
         if not row_count:
             raise UserNotFountException(message="User %s not found." % user_uuid)
         user = await DB_User_Model.async_first(uuid=user_uuid)

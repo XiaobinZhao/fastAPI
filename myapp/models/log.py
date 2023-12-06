@@ -26,6 +26,7 @@ class Log(BaseModel):
     obj_name = Column("obj_name", String(255), default="", nullable=False, comment="操作对象name")
     ref_id = Column("ref_id", String(255), default="", nullable=False, comment="涉及相关对象id")
     ref_name = Column("ref_name", String(255), default="", nullable=False, comment="涉及相关对象的name")
+    req_id = Column("req_id", String(32), default="", nullable=False, comment="request id")
     status = Column("status", Enum('success', 'fail', 'unknown'), default="unknown", nullable=False, comment="操作的结果")
     request_ip = Column("request_ip", String(20), default="", nullable=False, comment="操作的请求ip")
     error_code = Column("error_code", String(64), default="", nullable=False, comment="操作错误的错误码")

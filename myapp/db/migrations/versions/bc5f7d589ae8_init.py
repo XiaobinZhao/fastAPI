@@ -40,6 +40,7 @@ def upgrade():
     sa.Column('obj_name', sa.String(length=255), nullable=False, comment='操作对象name'),
     sa.Column('ref_id', sa.String(length=255), nullable=False, comment='涉及相关对象id'),
     sa.Column('ref_name', sa.String(length=255), nullable=False, comment='涉及相关对象的name'),
+    sa.Column('req_id', sa.String(length=32), nullable=False, comment='request id'),
     sa.Column('status', sa.Enum('success', 'fail', 'unknown'), nullable=False, comment='操作的结果'),
     sa.Column('request_ip', sa.String(length=20), nullable=False, comment='操作的请求ip'),
     sa.Column('error_code', sa.String(length=64), nullable=False, comment='操作错误的错误码'),

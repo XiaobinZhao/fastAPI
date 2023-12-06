@@ -1,7 +1,7 @@
 from starlette import status
 
 from myapp.base.exception import MyBaseException
-from myapp.error_code.auth import ErrorCode
+from myapp.code.auth import ErrorCode
 
 
 class RequestSecretInvalidException(MyBaseException):

@@ -1,6 +1,6 @@
 from fastapi import status
 from myapp.base.exception import MyBaseException
-from myapp.error_code.user import ErrorCode
+from myapp.code.user import ErrorCode
 
 
 class UserLoginNameExistException(MyBaseException):

@@ -6,7 +6,7 @@ from myapp.base.router import MyRouter
 from myapp.base.schema import MyBaseSchema
 from myapp.manager.system import SystemManager
 from myapp.schema.system import LanguageI18n
-from myapp.utils.snowflake import IDWorker
+from myapp.base.snowflake import IDWorker
 
 router = MyRouter(prefix="/system", tags=["system"], responses={status.HTTP_401_UNAUTHORIZED: {"model": MyBaseSchema}})
 

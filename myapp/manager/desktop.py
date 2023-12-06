@@ -1,4 +1,7 @@
 from uuid import uuid4
+
+from myapp.base.snowflake import IDWorker
+
 from myapp.models.desktop import Desktop as DB_Desktop_Model
 from myapp.base.schema import PageSchema
 from myapp.schema.desktop import DesktopBase as DesktopBaseViewModel
@@ -25,7 +28,7 @@ class DesktopManager(object):
     @staticmethod
     async def create_desktop(desktop: DesktopBaseViewModel):
         desktop = DB_Desktop_Model(**desktop.dict())
-        desktop.uuid = uuid4().hex
+        desktop.uuid = IDWorker.gen_id()
         desktop.vm_uuid = uuid4().hex
         desktop.node_uuid = uuid4().hex
         desktop.node_name = "host1"
@@ -48,7 +51,7 @@ class DesktopManager(object):
         return None
 
     @staticmethod
-    async def patch_desktop(desktop_uuid, patched_desktop):
+    async def patch_desktop(desktop_uuid, patched_desktop) -> DB_Desktop_Model:
         row_count = await DB_Desktop_Model.async_update_by_uuid(uuid=desktop_uuid,
                                                                 **patched_desktop.dict(exclude_unset=True))
         if not row_count:

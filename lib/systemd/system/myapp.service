@@ -1,6 +1,6 @@
 [Unit]
 Description=myapp daemon
-After=nginx.service mysql.service
+After=mysql.service
 Wants=mysql.service
 
 [Service]

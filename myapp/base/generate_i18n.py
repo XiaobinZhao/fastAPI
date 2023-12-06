@@ -7,9 +7,9 @@ from loguru import logger
 
 root_path = pathlib.Path(__file__).parent.parent.resolve()  # 使用绝对路径，防止环境不同导致的异常
 
-path_module = 'myapp.error_code'
+path_module = 'myapp.code'
 base_module = 'myapp.base.code'
-error_code_path = root_path.joinpath("error_code")
+error_code_path = root_path.joinpath("code")
 i18n_folder_path = root_path.joinpath("i18n")
 zh_file_path = i18n_folder_path.joinpath("zh.json")
 en_file_path = i18n_folder_path.joinpath("en.json")
