@@ -1,6 +1,6 @@
-# eojo-api
+# MyFastAPI
 
-EOJO website 后端
+pythonwebsite 后端
 
 python web framework base on FastAPI.
 
